@@ -56,7 +56,7 @@ const AuthStyles = StyleSheet.create({
     fontSize: 14,
   },
   buttonSection: {
-    paddingHorizontal: 85,
+    paddingHorizontal: 82,
     paddingVertical: 200, 
     zIndex: 1,
   },
@@ -65,7 +65,7 @@ const AuthStyles = StyleSheet.create({
     borderRadius: 25,
     paddingVertical: 6,
     alignItems: 'center',
-    marginTop: 10,
+    marginTop: 9,
   },
   primaryButtonText: {
     color: '#FFFFFF',

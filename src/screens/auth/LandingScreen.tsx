@@ -8,14 +8,16 @@ import {
   Image,
   Dimensions,
   Platform,
-  StatusBar,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { AuthStackParamList } from '../../navigation/AppNavigator';
 
-type LandingScreenNavigationProp = NativeStackNavigationProp<AuthStackParamList, 'Landing'>;
+type LandingScreenNavigationProp = NativeStackNavigationProp<
+  AuthStackParamList,
+  'Landing'
+>;
 
 const { width, height } = Dimensions.get('window');
 
@@ -24,6 +26,7 @@ const LandingScreen = () => {
 
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
+      {/* Background gedung kampus */}
       <ImageBackground
         source={require('../../assets/images/campus-building.jpeg')}
         style={styles.backgroundImage}
@@ -32,11 +35,25 @@ const LandingScreen = () => {
         <View style={styles.overlay} />
       </ImageBackground>
 
-      <View style={styles.contentContainer}>
-        <View style={styles.waveContainer}>
-          <View style={styles.wave} />
-        </View>
+      {/* Wave (gelombang) */}
+      <View style={styles.waveWrapper}>
+        {/* wave1 di bawah */}
+        <Image
+          source={require('../../assets/images/wave1.png')}
+          style={[styles.waveImage, styles.wave1]}
+          resizeMode="cover"
+        />
 
+        {/* wave di atas */}
+        <Image
+          source={require('../../assets/images/wave.png')}
+          style={[styles.waveImage, styles.wave2]}
+          resizeMode="cover"
+        />
+      </View>
+
+      {/* Konten utama */}
+      <View style={styles.contentContainer}>
         <View style={styles.logoContainer}>
           <Image
             source={require('../../assets/images/logo-ugn2.png')}
@@ -78,7 +95,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#015023',
   },
   backgroundImage: {
-    width: width,
+    width,
     height: height * 0.5,
     position: 'absolute',
     top: 0,
@@ -90,30 +107,39 @@ const styles = StyleSheet.create({
     ...StyleSheet.absoluteFillObject,
     backgroundColor: 'rgba(0, 0, 0, 0.15)',
   },
+
+  // --- bagian wave ---
+  waveWrapper: {
+    position: 'absolute',
+    top: height * 0.31,
+    left: 0,
+    right: 0,
+    height: 180,
+    zIndex: 5,
+  },
+  waveImage: {
+    position: 'absolute',
+    width: width,
+    height: 160,
+  },
+  wave1: {
+    zIndex: 1,
+    top: 25, // sedikit di bawah wave utama
+    opacity: 0.9, // biar sedikit transparan, bisa kamu ubah
+  },
+  wave2: {
+    zIndex: 2,
+    top: 30,
+  },
+
+  // --- konten utama ---
   contentContainer: {
     flex: 1,
     justifyContent: 'flex-end',
     alignItems: 'center',
     paddingHorizontal: 30,
-    paddingBottom: 40, // Dikurangi dari 80
-  },
-  waveContainer: {
-    position: 'absolute',
-    top: height * 0.42,
-    left: 0,
-    right: 0,
-    height: 100,
-    zIndex: 5,
-  },
-  wave: {
-    position: 'absolute',
-    bottom: 0,
-    left: -width * 0.1,
-    width: width * 1.2,
-    height: 110,
-    backgroundColor: '#015023',
-    borderTopLeftRadius: width * 0.6,
-    borderTopRightRadius: width * 0.6,
+    paddingBottom: 40,
+    zIndex: 10,
   },
   logoContainer: {
     width: 100,
@@ -121,7 +147,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: 40,
-    zIndex: 10,
   },
   logo: {
     width: '170%',
@@ -146,10 +171,7 @@ const styles = StyleSheet.create({
     borderRadius: 50,
     alignItems: 'center',
     shadowColor: '#000',
-    shadowOffset: {
-      width: 2,
-      height: 2,
-    },
+    shadowOffset: { width: 2, height: 2 },
     shadowOpacity: 1.85,
     shadowRadius: 9.84,
     elevation: 5,
