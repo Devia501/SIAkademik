@@ -26,7 +26,6 @@ const LandingScreen = () => {
 
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
-      {/* Background gedung kampus */}
       <ImageBackground
         source={require('../../assets/images/campus-building.jpeg')}
         style={styles.backgroundImage}
@@ -35,16 +34,13 @@ const LandingScreen = () => {
         <View style={styles.overlay} />
       </ImageBackground>
 
-      {/* Wave (gelombang) */}
       <View style={styles.waveWrapper}>
-        {/* wave1 di bawah */}
         <Image
           source={require('../../assets/images/wave1.png')}
           style={[styles.waveImage, styles.wave1]}
           resizeMode="cover"
         />
 
-        {/* wave di atas */}
         <Image
           source={require('../../assets/images/wave.png')}
           style={[styles.waveImage, styles.wave2]}
@@ -52,7 +48,6 @@ const LandingScreen = () => {
         />
       </View>
 
-      {/* Konten utama */}
       <View style={styles.contentContainer}>
         <View style={styles.logoContainer}>
           <Image
@@ -83,7 +78,6 @@ const LandingScreen = () => {
         </View>
       </View>
 
-      {/* Spacer untuk navigation bar */}
       <View style={styles.navigationBarSpacer} />
     </SafeAreaView>
   );
@@ -108,7 +102,6 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0, 0, 0, 0.15)',
   },
 
-  // --- bagian wave ---
   waveWrapper: {
     position: 'absolute',
     top: height * 0.31,
@@ -124,15 +117,13 @@ const styles = StyleSheet.create({
   },
   wave1: {
     zIndex: 1,
-    top: 25, // sedikit di bawah wave utama
-    opacity: 0.9, // biar sedikit transparan, bisa kamu ubah
+    top: 25, 
+    opacity: 0.9,
   },
   wave2: {
     zIndex: 2,
     top: 30,
   },
-
-  // --- konten utama ---
   contentContainer: {
     flex: 1,
     justifyContent: 'flex-end',
