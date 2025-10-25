@@ -36,8 +36,6 @@ const LoginScreen = () => {
       return;
     }
 
-    // Login berhasil, navigasi ke Dashboard Pendaftar
-    // @ts-ignore - Navigate ke nested navigator
     navigation.navigate('PendaftarApp', { screen: 'Dashboard' });
   };
 
@@ -45,7 +43,6 @@ const LoginScreen = () => {
     <SafeAreaView style={AuthStyles.container} edges={['top']}>
       <StatusBar barStyle="light-content" backgroundColor="#DABC4E" />
 
-      {/* Header */}
       <View style={AuthStyles.header}>
         <Image
           source={require('../../assets/images/logo-ugn2.png')}
@@ -55,7 +52,6 @@ const LoginScreen = () => {
         <Text style={AuthStyles.headerText}>UNIVERSITAS GLOBAL NUSANTARA</Text>
       </View>
 
-      {/* Form Login */}
       <View style={AuthStyles.formContainer}>
         <Text style={AuthStyles.title}>Login</Text>
 
@@ -94,7 +90,6 @@ const LoginScreen = () => {
         </View>
       </View>
 
-      {/* Captcha */}
       <View style={styles.captchaSection}>
         <Text style={AuthStyles.label}>Captcha</Text>
         <TouchableOpacity
@@ -114,7 +109,6 @@ const LoginScreen = () => {
         </TouchableOpacity>
       </View>
 
-      {/* Tombol Login */}
       <View style={AuthStyles.buttonSection}>
         <TouchableOpacity
           style={AuthStyles.primaryButton}
@@ -125,7 +119,6 @@ const LoginScreen = () => {
         </TouchableOpacity>
       </View>
 
-      {/* Logo Background */}
       <Image
         source={require('../../assets/images/logo-ugn.png')}
         style={AuthStyles.backgroundLogo}
@@ -150,7 +143,7 @@ const styles = StyleSheet.create({
   eyeButton: {
     position: 'absolute',
     right: 15,
-    top: 6,
+    top: 10,
   },
   eyeIcon: {
     width: 16,

@@ -1,342 +1,337 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   View,
   Text,
-  StyleSheet,
   TouchableOpacity,
   ImageBackground,
   ScrollView,
+  Image,
+  Modal,
+  StyleSheet,
+  Animated,
+  Dimensions,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { PendaftarStackParamList } from '../../navigation/PendaftarNavigator';
+import PendaftarStyles from '../../styles/PendaftarStyles';
 
-type DashboardScreenNavigationProp = NativeStackNavigationProp<PendaftarStackParamList, 'Dashboard'>;
+const { width } = Dimensions.get('window');
+
+type DashboardScreenNavigationProp = NativeStackNavigationProp<PendaftarStackParamList, 'PendaftarDashboard'>;
 
 const DashboardScreen = () => {
   const navigation = useNavigation<DashboardScreenNavigationProp>();
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  const slideAnim = useState(new Animated.Value(-width * 0.7))[0];
+
+  const toggleDrawer = () => {
+    if (isDrawerOpen) {
+      Animated.timing(slideAnim, {
+        toValue: -width * 0.7,
+        duration: 300,
+        useNativeDriver: true,
+      }).start(() => setIsDrawerOpen(false));
+    } else {
+      setIsDrawerOpen(true);
+      Animated.timing(slideAnim, {
+        toValue: 0,
+        duration: 300,
+        useNativeDriver: true,
+      }).start();
+    }
+  };
+
+  const handleMenuItemPress = (screen?: keyof PendaftarStackParamList) => {
+    toggleDrawer();
+    if (screen && screen !== 'PendaftarDashboard') {
+      setTimeout(() => {
+        navigation.navigate(screen);
+      }, 300);
+    }
+  };
+  
   return (
-    <SafeAreaView style={styles.container} edges={['top']}>
+    <SafeAreaView style={PendaftarStyles.container} edges={['top']}>
       <ScrollView showsVerticalScrollIndicator={false}>
-        {/* Header with Wave */}
-        <View style={styles.headerContainer}>
+        <View style={PendaftarStyles.headerContainer}>
           <ImageBackground
-            source={require('../../assets/images/wave5.png')}
-            style={styles.waveBackground}
+            source={require('../../assets/images/Rectangle 48.png')}
+            style={PendaftarStyles.waveBackground}
             resizeMode="cover"
           >
-            <View style={styles.headerContent}>
-              {/* Menu Icon */}
-              <TouchableOpacity style={styles.menuButton}>
-                <Text style={styles.menuIcon}>☰</Text>
+            <View style={PendaftarStyles.headerContent}>
+              <TouchableOpacity 
+                style={PendaftarStyles.menuButton}
+                onPress={toggleDrawer}
+              >
+                <Image
+                  source={require('../../assets/icons/fluent_navigation.png')}
+                  resizeMode="contain"
+                />
               </TouchableOpacity>
 
-              {/* User Info */}
-              <View style={styles.userInfo}>
-                <View style={styles.avatar}>
-                  <Text style={styles.avatarText}>SA</Text>
+              <View style={PendaftarStyles.userInfo}>
+                <View style={PendaftarStyles.avatar}>
+                  <Text style={PendaftarStyles.avatarText}>SA</Text>
                 </View>
-                <View style={styles.userTextContainer}>
-                  <Text style={styles.userName}>Siti Nur Azizah</Text>
-                  <Text style={styles.userRole}>Calon Mahasiswa</Text>
+                <View style={PendaftarStyles.userTextContainer}>
+                  <Text style={PendaftarStyles.userName}>Siti Nur Azizah</Text>
+                  <Text style={PendaftarStyles.userRole}>Calon Mahasiswa</Text>
                 </View>
               </View>
 
-              {/* Notification Icon */}
-              <TouchableOpacity style={styles.notifButton}>
-                <Text style={styles.notifIcon}>🔔</Text>
+              <TouchableOpacity style={PendaftarStyles.notifButton}>
+                <Image
+                  source={require('../../assets/icons/Exclude.png')}
+                  resizeMode="contain"
+                />
               </TouchableOpacity>
             </View>
           </ImageBackground>
         </View>
 
-        {/* Main Content */}
-        <View style={styles.content}>
-          {/* Quick Action Buttons */}
-          <View style={styles.quickActions}>
+        <View style={PendaftarStyles.content}>
+          <View style={PendaftarStyles.quickActions}>
             <TouchableOpacity 
-              style={styles.actionButton}
+              style={PendaftarStyles.actionButton}
               onPress={() => navigation.navigate('TataCara')}
             >
-              <Text style={styles.actionIcon}>📝</Text>
+              <Image
+                  source={require('../../assets/icons/ant-design_form.png')}
+                  style={PendaftarStyles.actionIcon}
+                  resizeMode="contain"
+                />
               <View>
-                <Text style={styles.actionTitle}>Tata cara</Text>
-                <Text style={styles.actionSubtitle}>Pendaftaran</Text>
+                <Text style={PendaftarStyles.actionTitle}>Tata cara</Text>
+                <Text style={PendaftarStyles.actionSubtitle}>Pendaftaran</Text>
               </View>
             </TouchableOpacity>
 
-            <TouchableOpacity style={styles.actionButton}>
-              <Text style={styles.actionIcon}>ℹ️</Text>
+            <TouchableOpacity 
+            style={PendaftarStyles.actionButton}
+            onPress={() => navigation.navigate('InformasiPenting')}
+            >
+              <Image
+                  source={require('../../assets/icons/material-symbols_info.png')}
+                  style={PendaftarStyles.actionIcon}
+                  resizeMode="contain"
+                />
               <View>
-                <Text style={styles.actionTitle}>Informasi</Text>
-                <Text style={styles.actionSubtitle}>Penting</Text>
+                <Text style={PendaftarStyles.actionTitle}>Informasi</Text>
+                <Text style={PendaftarStyles.actionSubtitle}>Penting</Text>
               </View>
             </TouchableOpacity>
           </View>
 
-          {/* Register Button */}
-          <TouchableOpacity style={styles.registerButton}>
-            <Text style={styles.registerButtonText}>Daftar Mahasiswa Baru</Text>
+          <TouchableOpacity style={PendaftarStyles.registerButton}
+          onPress={() => navigation.navigate('TataCara')}>
+            <Text style={PendaftarStyles.registerButtonText}>Daftar Mahasiswa Baru</Text>
           </TouchableOpacity>
 
-          {/* News Section */}
-          <View style={styles.newsSection}>
-            <Text style={styles.newsTitle}>Berita Terbaru</Text>
-            
-            <View style={styles.newsCard}>
-              <Text style={styles.newsCardTitle}>
+          <View style={PendaftarStyles.newsSection}>
+            <View style={PendaftarStyles.newsCard}>
+              <Text style={PendaftarStyles.newsTitle}>Berita Terbaru</Text>
+              <View style={PendaftarStyles.newsCard2}>
+                <Text style={PendaftarStyles.newsCardTitle}>
                 Selamat Kepada Calon Mahasiswa Baru
               </Text>
-              <View style={styles.newsCardContent}>
-                <Text style={styles.newsCardText}>
+              <TouchableOpacity style={PendaftarStyles.newsCardContent}>
+                <Text style={PendaftarStyles.newsCardText}>
                   Klik disini untuk melihat pengumuman!
                 </Text>
+              </TouchableOpacity>
+              
               </View>
             </View>
 
-            {/* Pagination Dots */}
-            <View style={styles.pagination}>
-              <View style={[styles.dot, styles.dotActive]} />
-              <View style={styles.dot} />
-              <View style={styles.dot} />
+            <View style={PendaftarStyles.pagination}>
+              <View style={[PendaftarStyles.dot, PendaftarStyles.dotActive]} />
+              <View style={PendaftarStyles.dot} />
+              <View style={PendaftarStyles.dot1} />
             </View>
           </View>
         </View>
 
-        {/* Bottom Navigation */}
-        <View style={styles.bottomNav}>
-          <TouchableOpacity style={styles.navItem}>
-            <View style={styles.navItemActive}>
-              <Text style={styles.navIcon}>🏠</Text>
-              <Text style={styles.navTextActive}>Home</Text>
+        <View style={PendaftarStyles.bottomNav}>
+          <TouchableOpacity style={PendaftarStyles.navItem}>
+            <View style={PendaftarStyles.navItemActive}>
+              <Image
+                  source={require('../../assets/icons/material-symbols_home-rounded.png')}
+                  style={PendaftarStyles.navIconImage}
+                  resizeMode="contain"
+                />
+              <Text style={PendaftarStyles.navTextActive}>Home</Text>
             </View>
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.navItem}>
-            <Text style={styles.navIcon}>📄</Text>
-            <Text style={styles.navText}>Form</Text>
+          <TouchableOpacity style={PendaftarStyles.navItem}
+          onPress={() => navigation.navigate('TataCara')}>
+            <Image
+                  source={require('../../assets/icons/clarity_form-line.png')}
+                  style={PendaftarStyles.navIconImage}
+                  resizeMode="contain"
+                />
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.navItem}>
-            <Text style={styles.navIcon}>👤</Text>
-            <Text style={styles.navText}>Profile</Text>
+          <TouchableOpacity style={PendaftarStyles.navItem}
+          onPress={() => navigation.navigate('StatusPendaftaranAwal')}>
+            <Image
+                  source={require('../../assets/icons/fluent_shifts-activity.png')}
+                  style={PendaftarStyles.navIconImage}
+                  resizeMode="contain"
+                />
+          </TouchableOpacity>
+
+          <TouchableOpacity style={PendaftarStyles.navItem}
+          onPress={() => navigation.navigate('Profile')}>
+            <Image
+                  source={require('../../assets/icons/ix_user-profile-filled.png')}
+                  style={PendaftarStyles.navIconImage}
+                  resizeMode="contain"
+                />
           </TouchableOpacity>
         </View>
       </ScrollView>
+
+      <Image
+        source={require('../../assets/images/logo-ugn.png')}
+        style={PendaftarStyles.backgroundLogo}
+        resizeMode="contain"
+      />
+
+      <Modal
+        visible={isDrawerOpen}
+        transparent={true}
+        animationType="none"
+        onRequestClose={toggleDrawer}
+      >
+        <View style={styles.modalOverlay}>
+          <Animated.View 
+            style={[
+              styles.drawerContainer,
+              { transform: [{ translateX: slideAnim }] }
+            ]}
+          >
+            <View style={styles.drawerContent}>
+
+              <TouchableOpacity 
+                style={styles.menuButton}
+                onPress={() => handleMenuItemPress('PendaftarDashboard')}
+              >
+                <Image
+                  source={require('../../assets/icons/fluent_navigation.png')}
+                  resizeMode="contain"
+                />
+              </TouchableOpacity>
+
+              <TouchableOpacity 
+                style={[styles.menuItem, styles.menuItemActive]}
+                onPress={() => handleMenuItemPress('PendaftarDashboard')}
+              >
+                <Image
+                  source={require('../../assets/icons/material-symbols_home-rounded.png')}
+                  style={[styles.menuIcon, styles.menuIconColor]}
+                  resizeMode="contain"
+                />
+                <Text style={[styles.menuText, styles.menuText]}>Dashboard</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity 
+                style={styles.menuItem}
+                onPress={() => handleMenuItemPress('TataCara')}
+              >
+                <Image
+                  source={require('../../assets/icons/clarity_form-line.png')}
+                  style={styles.menuIcon}
+                  resizeMode="contain"
+                />
+                <Text style={styles.menuText}>Pendaftaran</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity 
+                style={styles.menuItem}
+                onPress={() => handleMenuItemPress('StatusPendaftaranAwal')}
+              >
+                <Image
+                  source={require('../../assets/icons/fluent_shifts-activity.png')}
+                  style={styles.menuIcon}
+                  resizeMode="contain"
+                />
+                <Text style={styles.menuText}>Status Pendaftaran</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity 
+                style={styles.menuItem}
+                onPress={() => handleMenuItemPress('Profile')}
+              >
+                <Image
+                  source={require('../../assets/icons/ix_user-profile-filled.png')}
+                  style={styles.menuIcon}
+                  resizeMode="contain"
+                />
+                <Text style={styles.menuText}>Profile</Text>
+              </TouchableOpacity>
+            </View>
+          </Animated.View>
+
+          
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
+  menuButton: {
+    top: -29,
+    left: 8,
+  },
+  modalOverlay: {
     flex: 1,
-    backgroundColor: '#0D5C3D',
+    flexDirection: 'row',
+    justifyContent: 'flex-start',
   },
-  headerContainer: {
-    height: 150,
+  overlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
   },
-  waveBackground: {
-    width: '100%',
+  drawerContainer: {
+    width: width * 0.7,
+    backgroundColor: '#F5E6D3',
     height: '100%',
+    paddingTop: 60,
+    paddingHorizontal: 20,
   },
-  headerContent: {
+  drawerContent: {
+    flex: 1,
+  },
+  menuItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
+    backgroundColor: '#015023',
+    borderRadius: 25,
+    paddingVertical: 14,
     paddingHorizontal: 20,
-    paddingTop: 20,
+    marginBottom: 16,
+    gap: 12,
   },
-  menuButton: {
-    width: 40,
-    height: 40,
-    justifyContent: 'center',
-    alignItems: 'center',
+  menuItemActive: {
+    backgroundColor: '#DABC4E',
   },
   menuIcon: {
-    fontSize: 24,
-    color: '#000',
+    width: 24,
+    height: 24,
+    tintColor: '#FFF',
   },
-  userInfo: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    flex: 1,
-    marginLeft: 15,
+  menuIconColor: {
+    tintColor: '#000000ff',
   },
-  avatar: {
-    width: 50,
-    height: 50,
-    borderRadius: 25,
-    backgroundColor: '#FFF',
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderWidth: 2,
-    borderColor: '#0D5C3D',
-  },
-  avatarText: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#0D5C3D',
-  },
-  userTextContainer: {
-    marginLeft: 12,
-  },
-  userName: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: '#0D5C3D',
-  },
-  userRole: {
-    fontSize: 12,
-    color: '#0D5C3D',
-    marginTop: 2,
-  },
-  notifButton: {
-    width: 40,
-    height: 40,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  notifIcon: {
-    fontSize: 24,
-  },
-  content: {
-    paddingHorizontal: 20,
-    marginTop: -40,
-  },
-  quickActions: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: 20,
-  },
-  actionButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#F5E6D3',
-    borderRadius: 15,
-    padding: 15,
-    width: '48%',
-    gap: 10,
-  },
-  actionIcon: {
-    fontSize: 28,
-  },
-  actionTitle: {
+  menuText: {
     fontSize: 14,
-    fontWeight: 'bold',
-    color: '#000',
-  },
-  actionSubtitle: {
-    fontSize: 12,
-    color: '#000',
-  },
-  registerButton: {
-    backgroundColor: '#D4AF37',
-    borderRadius: 25,
-    paddingVertical: 18,
-    alignItems: 'center',
-    marginBottom: 30,
-  },
-  registerButtonText: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: '#000',
-  },
-  newsSection: {
-    marginBottom: 100,
-  },
-  newsTitle: {
-    fontSize: 16,
-    fontWeight: 'bold',
+    fontWeight: '600',
     color: '#FFF',
-    marginBottom: 15,
-  },
-  newsCard: {
-    backgroundColor: '#F5E6D3',
-    borderRadius: 20,
-    padding: 20,
-    borderWidth: 3,
-    borderColor: '#FFF',
-  },
-  newsCardTitle: {
-    fontSize: 14,
-    fontWeight: 'bold',
-    color: '#000',
-    marginBottom: 15,
-  },
-  newsCardContent: {
-    backgroundColor: '#E8D4B8',
-    borderRadius: 15,
-    padding: 15,
-  },
-  newsCardText: {
-    fontSize: 12,
-    color: '#0D5C3D',
-    textAlign: 'center',
-  },
-  pagination: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginTop: 15,
-    gap: 8,
-  },
-  dot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    backgroundColor: '#FFF',
-    opacity: 0.5,
-  },
-  dotActive: {
-    width: 30,
-    height: 8,
-    borderRadius: 4,
-    backgroundColor: '#D4AF37',
-    opacity: 1,
-  },
-  bottomNav: {
-    position: 'absolute',
-    bottom: 20,
-    left: 20,
-    right: 20,
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    alignItems: 'center',
-    backgroundColor: '#FFF',
-    borderRadius: 30,
-    paddingVertical: 12,
-    paddingHorizontal: 20,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 8,
-  },
-  navItem: {
-    alignItems: 'center',
-  },
-  navItemActive: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#F5E6D3',
-    borderRadius: 20,
-    paddingHorizontal: 20,
-    paddingVertical: 8,
-    gap: 8,
-  },
-  navIcon: {
-    fontSize: 24,
-  },
-  navText: {
-    fontSize: 11,
-    color: '#666',
-    marginTop: 4,
-  },
-  navTextActive: {
-    fontSize: 13,
-    fontWeight: 'bold',
-    color: '#000',
   },
 });
 

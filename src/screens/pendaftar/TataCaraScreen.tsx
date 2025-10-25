@@ -6,314 +6,358 @@ import {
   TouchableOpacity,
   ImageBackground,
   ScrollView,
+  Image,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { PendaftarStackParamList } from '../../navigation/PendaftarNavigator';
+import PendaftarStyles from '../../styles/PendaftarStyles';
+
+type TataCaraNavigationProp = NativeStackNavigationProp<PendaftarStackParamList, 'TataCara'>;
 
 const TataCaraScreen = () => {
-  const navigation = useNavigation();
-
-  const steps = [
-    {
-      icon: '👤',
-      title: 'Membuat akun',
-      subtitle: 'pendaftaran',
-      delay: 0,
-    },
-    {
-      icon: '📧',
-      title: 'Memperoleh email verifikasi',
-      subtitle: 'akun pendaftaran',
-      delay: 100,
-    },
-    {
-      icon: '💳',
-      title: 'Membayar biaya',
-      subtitle: 'pendaftaran',
-      delay: 200,
-    },
-    {
-      icon: '📤',
-      title: 'Log in/masuk memakai akun yang',
-      subtitle: 'sudah ada dan melengkapi form atau',
-      subtitle2: 'mengunggah dokumen',
-      delay: 300,
-    },
-    {
-      icon: '✓',
-      title: 'Verifikasi dokumen secara',
-      subtitle: 'online oleh prodi dan DPP',
-      delay: 400,
-    },
-    {
-      icon: '🎓',
-      title: 'Tes Substansif/',
-      subtitle: 'Seleksi oleh Prodi',
-      delay: 500,
-    },
-  ];
+  const navigation = useNavigation<TataCaraNavigationProp>();
 
   return (
-    <SafeAreaView style={styles.container} edges={['top']}>
-      <ImageBackground
-        source={require('../../assets/images/wave5.png')}
-        style={styles.waveBackground}
-        resizeMode="cover"
-      >
-        {/* Header */}
-        <View style={styles.header}>
-          <TouchableOpacity 
-            style={styles.backButton}
-            onPress={() => navigation.goBack()}
+    <SafeAreaView style={PendaftarStyles.container} edges={['top']}>
+      <ScrollView showsVerticalScrollIndicator={false}>
+        <View style={PendaftarStyles.headerContainer}>
+          <ImageBackground
+            source={require('../../assets/images/Rectangle 58.png')}
+            style={PendaftarStyles.waveBackground}
+            resizeMode="cover"
           >
-            <Text style={styles.backIcon}>←</Text>
-          </TouchableOpacity>
-          <View style={styles.headerTitleContainer}>
-            <Text style={styles.headerTitle}>Tata Cara Pendaftaran</Text>
-          </View>
+            <View style={PendaftarStyles.headerContentV2}>
+              <TouchableOpacity 
+                style={PendaftarStyles.backButton}
+                onPress={() => navigation.goBack()}
+              >
+                <Image
+                  source={require('../../assets/icons/material-symbols_arrow-back-rounded.png')}
+                  style={PendaftarStyles.navIconImage}
+                  resizeMode="contain"
+                />
+              </TouchableOpacity>
+              
+              <View style={PendaftarStyles.headerTitleContainerV2}>
+                <Text style={PendaftarStyles.headerTitleV2}>Tata Cara Pendaftaran</Text>
+              </View>
+            </View>
+          </ImageBackground>
         </View>
-      </ImageBackground>
 
-      <ScrollView 
-        style={styles.content}
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={styles.contentContainer}
-      >
-        {/* Steps with connecting lines */}
-        <View style={styles.stepsContainer}>
-          {steps.map((step, index) => (
-            <View key={index} style={styles.stepWrapper}>
-              {/* Step Card */}
+        <View style={PendaftarStyles.content}>
+          <View style={styles.stepsGrid}>
+            <View style={styles.row}>
               <View style={styles.stepCard}>
-                <View style={styles.iconContainer}>
-                  <Text style={styles.stepIcon}>{step.icon}</Text>
+                <View style={[styles.iconCircle, styles.iconGreen]}>
+                  <Image
+                    source={require('../../assets/icons/mingcute_location-3-fill.png')}
+                    style={PendaftarStyles.navIconImage}
+                    resizeMode="contain"
+                  />
                 </View>
-                <View style={styles.stepTextContainer}>
-                  <Text style={styles.stepTitle}>{step.title}</Text>
-                  <Text style={styles.stepSubtitle}>{step.subtitle}</Text>
-                  {step.subtitle2 && (
-                    <Text style={styles.stepSubtitle}>{step.subtitle2}</Text>
-                  )}
-                </View>
+                <Text style={[styles.cardTitle, styles.cardTitleWhite]}>Membuat akun pendaftaran</Text>
               </View>
 
-              {/* Connecting Arrow */}
-              {index < steps.length - 1 && (
-                <View style={styles.arrowContainer}>
-                  <View style={styles.dashedLine} />
-                  <Text style={styles.arrowIcon}>↓</Text>
-                </View>
-              )}
+              <View style={styles.arrowHorizontal}>
+                <Image
+                    source={require('../../assets/icons/entypo_flow-line.png')}
+                    style={PendaftarStyles.navIconImage}
+                    resizeMode="contain"
+                  />
+              </View>
 
-              {/* Final Card - Pengumuman */}
-              {index === steps.length - 1 && (
-                <>
-                  <View style={styles.arrowContainer}>
-                    <View style={styles.dashedLine} />
-                    <Text style={styles.arrowIcon}>↓</Text>
-                  </View>
-                  <View style={[styles.stepCard, styles.finalCard]}>
-                    <View style={styles.iconContainer}>
-                      <Text style={styles.stepIcon}>👤</Text>
-                    </View>
-                    <View style={styles.stepTextContainer}>
-                      <Text style={styles.stepTitle}>Pengumuman</Text>
-                      <Text style={styles.stepTitle}>Hasil Seleksi</Text>
-                    </View>
-                  </View>
-                </>
-              )}
+              <View style={[styles.stepCard, styles.cardWhite]}>
+                <View style={[styles.iconCircle, styles.iconGreen]}>
+                  <Image
+                    source={require('../../assets/icons/material-symbols_mail.png')}
+                    style={PendaftarStyles.navIconImage}
+                    resizeMode="contain"
+                  />
+                </View>
+                <Text style={[styles.cardTitle, styles.cardTitleBlack]}>Memperoleh email verifikasi akun pendaftaran</Text>
+              </View>
             </View>
-          ))}
+
+            <View style={styles.arrowDownContainer}>
+              <Image
+                source={require('../../assets/icons/fluent_arrow-step-in-16-filled.png')}
+                style={PendaftarStyles.navIconImage}
+                resizeMode="contain"
+              />
+            </View>
+
+            <View style={styles.row}>
+              <View style={[styles.stepCard, styles.cardWhite]}>
+                <View style={[styles.iconCircle, styles.iconGreen]}>
+                  <Image
+                    source={require('../../assets/icons/fluent_payment-20-filled.png')}
+                    style={PendaftarStyles.navIconImage}
+                    resizeMode="contain"
+                  />
+                </View>
+                <Text style={[styles.cardTitle, styles.cardTitleBlack]}>Membayar biaya pendaftaran</Text>
+              </View>
+
+              <View style={styles.arrowHorizontal}>
+                <Image
+                    source={require('../../assets/icons/entypo_flow-line.png')}
+                    style={PendaftarStyles.navIconImage}
+                    resizeMode="contain"
+                  />
+              </View>
+
+              <View style={[styles.stepCard, styles.cardWhite]}>
+                <View style={[styles.iconCircle, styles.iconGreen]}>
+                  <Image
+                    source={require('../../assets/icons/material-symbols_upload-rounded.png')}
+                    style={PendaftarStyles.navIconImage}
+                    resizeMode="contain"
+                  />
+                </View>
+                <Text style={[styles.cardTitle, styles.cardTitleBlack, styles.smallText]}>Log in untuk memilih jalur, prodi tujuan, dan melengkapi data serta mengunggah dokumen</Text>
+              </View>
+            </View>
+
+            <View style={styles.arrowDownContainer1}>
+              <Image
+                source={require('../../assets/icons/fluent_arrow-step-in-16-filled.png')}
+                style={PendaftarStyles.navIconImage}
+                resizeMode="contain"
+              />
+            </View>
+
+            <View style={styles.row}>
+              <View style={[styles.stepCard, styles.cardWhite]}>
+                <View style={[styles.iconCircle, styles.iconGreen]}>
+                  <Image
+                    source={require('../../assets/icons/Group.png')}
+                    style={PendaftarStyles.navIconImage}
+                    resizeMode="contain"
+                  />
+                </View>
+                <Text style={[styles.cardTitle, styles.cardTitleBlack]}>Verifikasi dokumen secara online oleh prodi dan DPP</Text>
+              </View>
+
+              <View style={styles.arrowHorizontal}>
+                <Image
+                    source={require('../../assets/icons/entypo_flow-line.png')}
+                    style={PendaftarStyles.navIconImage}
+                    resizeMode="contain"
+                  />
+              </View>
+
+              <View style={[styles.stepCard, styles.cardWhite]}>
+                <View style={[styles.iconCircle, styles.iconGreen]}>
+                  <Image
+                    source={require('../../assets/icons/solar_cup-bold.png')}
+                    style={PendaftarStyles.navIconImage}
+                    resizeMode="contain"
+                  />
+                </View>
+                <Text style={[styles.cardTitle, styles.cardTitleBlack]}>Tes Substansif/ {'\n'} Seleksi oleh Prodi</Text>
+              </View>
+            </View>
+
+            <View style={styles.curvedArrowContainer}>
+              <Image
+                source={require('../../assets/icons/Arrow 1.png')}
+                style={styles.curvedArrowIcon}
+                resizeMode="contain"
+              />
+            </View>
+
+            <View style={styles.finalStepContainer}>
+              <View style={[styles.stepCard, styles.cardGold, styles.finalCard]}>
+                <View style={[styles.iconCircle, styles.iconWhite]}>
+                  <Image
+                    source={require('../../assets/icons/Exclude.png')}
+                    style={PendaftarStyles.navIconImage}
+                    resizeMode="contain"
+                  />
+                </View>
+                <Text style={[styles.cardTitle, styles.cardTitleBlack]}>Pengumuman {'\n'} Hasil Seleksi</Text>
+              </View>
+            </View>
+          </View>
+
+          <TouchableOpacity style={styles.daftarButton}
+          onPress={() => navigation.navigate('InformasiPenting')}>
+            <Text style={styles.daftarButtonText}>Daftar</Text>
+          </TouchableOpacity>
         </View>
 
-        {/* Daftar Button */}
-        <TouchableOpacity style={styles.daftarButton}>
-          <Text style={styles.daftarButtonText}>Daftar</Text>
-        </TouchableOpacity>
+        <View style={[PendaftarStyles.bottomNav, styles.nav]}>
+          <TouchableOpacity style={PendaftarStyles.navItem}
+          onPress={() => navigation.navigate('PendaftarDashboard')}>
+            <Image
+                  source={require('../../assets/icons/material-symbols_home-rounded.png')}
+                  style={PendaftarStyles.navIconImage}
+                  resizeMode="contain"
+                />
+          </TouchableOpacity>
+
+          <TouchableOpacity style={PendaftarStyles.navItem}>
+            <View style={PendaftarStyles.navItemActive}>
+              <Image
+                  source={require('../../assets/icons/clarity_form-line.png')}
+                  style={PendaftarStyles.navIconImage}
+                  resizeMode="contain"
+                />
+              <Text style={PendaftarStyles.navTextActive}>Daftar</Text>
+            </View>
+          </TouchableOpacity>
+
+          <TouchableOpacity style={PendaftarStyles.navItem}
+          onPress={() => navigation.navigate('StatusPendaftaranAwal')}>
+            <Image
+                  source={require('../../assets/icons/fluent_shifts-activity.png')}
+                  style={PendaftarStyles.navIconImage}
+                  resizeMode="contain"
+                />
+          </TouchableOpacity>
+
+          <TouchableOpacity style={PendaftarStyles.navItem}
+          onPress={() => navigation.navigate('Profile')}>
+            <Image
+                  source={require('../../assets/icons/ix_user-profile-filled.png')}
+                  style={PendaftarStyles.navIconImage}
+                  resizeMode="contain"
+                />
+          </TouchableOpacity>
+        </View>
       </ScrollView>
 
-      {/* Bottom Navigation */}
-      <View style={styles.bottomNav}>
-        <TouchableOpacity style={styles.navItem}>
-          <Text style={styles.navIcon}>🏠</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity style={styles.navItemActive}>
-          <Text style={styles.navIconActive}>📄</Text>
-          <Text style={styles.navTextActive}>Daftar</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity style={styles.navItem}>
-          <Text style={styles.navIcon}>👤</Text>
-        </TouchableOpacity>
-      </View>
+      <Image
+        source={require('../../assets/images/logo-ugn.png')}
+        style={PendaftarStyles.backgroundLogo}
+        resizeMode="contain"
+      />
     </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#0D5C3D',
+  nav: {
+    bottom:20.5,
   },
-  waveBackground: {
-    width: '100%',
-    height: 150,
+  stepsGrid: {
+    marginTop: 22,
+    paddingHorizontal: 2,
   },
-  header: {
+  row: {
     flexDirection: 'row',
+    justifyContent: 'space-between',
     alignItems: 'center',
-    paddingHorizontal: 20,
-    paddingTop: 20,
-  },
-  backButton: {
-    width: 40,
-    height: 40,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  backIcon: {
-    fontSize: 28,
-    color: '#FFF',
-    fontWeight: 'bold',
-  },
-  headerTitleContainer: {
-    flex: 1,
-    alignItems: 'center',
-    marginRight: 40,
-  },
-  headerTitle: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: '#0D5C3D',
-    backgroundColor: '#F5E6D3',
-    paddingHorizontal: 20,
-    paddingVertical: 10,
-    borderRadius: 20,
-  },
-  content: {
-    flex: 1,
-  },
-  contentContainer: {
-    paddingHorizontal: 20,
-    paddingTop: 20,
-    paddingBottom: 100,
-  },
-  stepsContainer: {
-    marginBottom: 20,
-  },
-  stepWrapper: {
-    marginBottom: 0,
   },
   stepCard: {
-    flexDirection: 'row',
+    flex: 1,
+    backgroundColor: '#D4AF37',
+    borderRadius: 12,
     alignItems: 'center',
-    backgroundColor: '#F5E6D3',
-    borderRadius: 15,
-    padding: 15,
-    gap: 12,
+    justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: '#000',
+    position: 'relative',
   },
-  finalCard: {
+  cardWhite: {
+    backgroundColor: '#F5E6D3',
+  },
+  cardGold: {
     backgroundColor: '#D4AF37',
   },
-  iconContainer: {
+  iconCircle: {
+    bottom: 32,
     width: 50,
     height: 50,
     borderRadius: 25,
-    backgroundColor: '#FFF',
     justifyContent: 'center',
     alignItems: 'center',
-    borderWidth: 2,
-    borderColor: '#0D5C3D',
+    marginBottom: 2,
+    borderWidth: 1,
+    borderColor: '#000',
+    opacity:0.9,
   },
-  stepIcon: {
-    fontSize: 24,
+  iconGreen: {
+    backgroundColor: '#FFF',
   },
-  stepTextContainer: {
-    flex: 1,
+  iconWhite: {
+    backgroundColor: '#FFF',
   },
-  stepTitle: {
-    fontSize: 13,
-    fontWeight: 'bold',
+  cardTitle: {
+    fontSize: 12,
+    bottom: 12,
+    color: '#ffffffff',
+    textAlign: 'center',
+    marginTop: -20,
+  },
+  cardTitleWhite: {
+    color: '#ffffffff',
+  },
+  cardTitleBlack: {
     color: '#000',
-    lineHeight: 18,
   },
-  stepSubtitle: {
-    fontSize: 11,
-    color: '#000',
-    lineHeight: 16,
+  smallText: {
+    fontSize: 9,
+    lineHeight: 12,
   },
-  arrowContainer: {
+  arrowHorizontal: {
+    width: 32,
     alignItems: 'center',
-    paddingVertical: 8,
-    position: 'relative',
+    justifyContent: 'center',
   },
-  dashedLine: {
-    width: 2,
-    height: 20,
-    borderLeftWidth: 2,
-    borderLeftColor: '#D4AF37',
-    borderStyle: 'dashed',
+  arrowText: {
+    fontSize: 18,
+    color: '#D4AF37',
+    fontWeight: 'bold',
   },
-  arrowIcon: {
+  arrowDownContainer: {
+    alignItems: 'flex-start',
+    paddingLeft: 270,
+    marginVertical: 5,
+  },
+  arrowDownContainer1: {
+    alignItems: 'flex-start',
+    paddingLeft: 95,
+    marginVertical: 5,
+  },
+  arrowDownText: {
     fontSize: 20,
     color: '#D4AF37',
     fontWeight: 'bold',
-    marginTop: -8,
+  },
+  curvedArrowContainer: {
+    alignItems: 'flex-end',
+    paddingRight: 2,
+    marginVertical: 12,
+  },
+  curvedArrowIcon: {
+    width: 70,
+    height: 70,
+  },
+  
+  finalStepContainer: {
+    alignItems: 'center',
+    marginTop: -50,
+  },
+  finalCard: {
+    width: '60%',
   },
   daftarButton: {
     backgroundColor: '#D4AF37',
     borderRadius: 25,
-    paddingVertical: 15,
+    paddingVertical: 10,
     alignItems: 'center',
-    marginTop: 20,
+    marginTop: 22,
+    marginBottom: 104,
+    marginHorizontal: 80,
   },
   daftarButtonText: {
     fontSize: 16,
     fontWeight: 'bold',
-    color: '#000',
-  },
-  bottomNav: {
-    position: 'absolute',
-    bottom: 20,
-    left: 20,
-    right: 20,
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    alignItems: 'center',
-    backgroundColor: '#FFF',
-    borderRadius: 30,
-    paddingVertical: 12,
-    paddingHorizontal: 20,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 8,
-  },
-  navItem: {
-    alignItems: 'center',
-  },
-  navItemActive: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#F5E6D3',
-    borderRadius: 20,
-    paddingHorizontal: 20,
-    paddingVertical: 8,
-    gap: 8,
-  },
-  navIcon: {
-    fontSize: 24,
-  },
-  navIconActive: {
-    fontSize: 24,
-  },
-  navTextActive: {
-    fontSize: 13,
-    fontWeight: 'bold',
-    color: '#000',
+    color: '#ffffffff',
   },
 });
 

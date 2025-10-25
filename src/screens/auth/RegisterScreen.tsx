@@ -12,7 +12,11 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import AuthStyles from '../../styles/AuthStyles';
+import { AuthStackParamList } from '../../navigation/AppNavigator';
+
+type RegisterScreenNavigationProp = NativeStackNavigationProp<AuthStackParamList, 'Register'>;
 
 const RegisterScreen = () => {
   const [fullName, setFullName] = useState('');
@@ -23,7 +27,7 @@ const RegisterScreen = () => {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
 
-  const navigation = useNavigation();
+  const navigation = useNavigation<RegisterScreenNavigationProp>();
 
   const validateEmail = (email) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -68,7 +72,7 @@ const RegisterScreen = () => {
   };
 
   return (
-    <SafeAreaView style={AuthStyles.container} edges={['top']}>
+    <SafeAreaView style={AuthStyles.container} edges={['top', 'bottom']}>
       <StatusBar barStyle="light-content" backgroundColor="#DABC4E" />
 
       <View style={AuthStyles.header}>
@@ -159,16 +163,15 @@ const RegisterScreen = () => {
         >
           <Text style={AuthStyles.primaryButtonText}>Register</Text>
         </TouchableOpacity>
-
-        <TouchableOpacity
+      </View>
+      <TouchableOpacity
           onPress={() => navigation.navigate('Login')}
-          style={{ marginTop: 10, alignSelf: 'center' }}
+          style={{ marginTop: -130, alignSelf: 'center' }}
         >
-          <Text style={{ color: '#000000ff', fontSize: 12 }}>
+          <Text style={{ color: '#000000ff', fontSize: 12}}>
             Sudah punya akun? <Text style={{color: '#F5F5DC', fontWeight: 'bold' }}>Login</Text>
           </Text>
-        </TouchableOpacity>
-      </View>
+      </TouchableOpacity>
 
       {/* Logo Background */}
       <Image
@@ -182,7 +185,6 @@ const RegisterScreen = () => {
   );
 };
 
-// 🎨 Styling tambahan
 const styles = StyleSheet.create({
   inputDark: {
     backgroundColor: '#F0F0E8',
@@ -196,7 +198,7 @@ const styles = StyleSheet.create({
   eyeButton: {
     position: 'absolute',
     right: 15,
-    top: 6,
+    top: 10,
   },
   eyeIcon: {
     width: 16,
@@ -204,8 +206,7 @@ const styles = StyleSheet.create({
   },
   registerButtonSection: {
     paddingHorizontal: 82,
-    paddingVertical: 146,
-    zIndex: 1,
+    paddingVertical: 128,
   },
   navigationBarSpacer: {
     height: Platform.OS === 'android' ? 48 : 0,

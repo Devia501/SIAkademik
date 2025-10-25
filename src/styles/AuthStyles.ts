@@ -7,7 +7,7 @@ const AuthStyles = StyleSheet.create({
   },
   header: {
     backgroundColor: '#DABC4E', 
-    height: 60,
+    height: 90,
     paddingHorizontal: 10,
     alignItems: 'center',
     flexDirection: 'row',
@@ -16,14 +16,15 @@ const AuthStyles = StyleSheet.create({
     borderBottomColor: '#FFFFFF',
   },
   logo: {
-    width: 55,
-    height: 55,
-    marginBottom: 8,
+    width: 75,
+    height: 75,
+    marginBottom: 12,
     
   },
   headerText: {
     color: '#000000ff',
-    fontSize: 10,
+    marginTop: 10,
+    fontSize: 11,
     fontWeight: 'bold',
     textAlign: 'left',
     flex: 1,
@@ -32,7 +33,6 @@ const AuthStyles = StyleSheet.create({
   formContainer: {
     paddingHorizontal: 40,
     paddingTop: 18,
-    zIndex: 1,
   },
   title: { 
     color: '#ffffffff',
@@ -44,28 +44,27 @@ const AuthStyles = StyleSheet.create({
   label: {
     color: '#FFFFFF',
     fontSize: 10,
-    marginBottom: 8,
+    marginBottom: 10,
     marginLeft: 10,
   },
   input: {
     backgroundColor: '#ffffffff',
     borderRadius: 25,
     paddingHorizontal: 20,
-    paddingVertical: 6,
+    paddingVertical: 10,
     marginBottom: 18,
     fontSize: 14,
   },
   buttonSection: {
     paddingHorizontal: 82,
     paddingVertical: 200, 
-    zIndex: 1,
   },
   primaryButton: {
     backgroundColor: '#DABC4E',
     borderRadius: 25,
     paddingVertical: 6,
     alignItems: 'center',
-    marginTop: 9,
+    marginTop: -43,
   },
   primaryButtonText: {
     color: '#FFFFFF',
@@ -79,6 +78,7 @@ const AuthStyles = StyleSheet.create({
     width: 950,
     height: 950,
     opacity: 0.20,
+    zIndex: -1,
   },
 });
 
