@@ -127,7 +127,6 @@ color: '#000',
 },
 
 registerButton: {
-backgroundColor: '#fddaacff',
 borderRadius: 30,
 paddingVertical: 16,
 justifyContent: 'center',

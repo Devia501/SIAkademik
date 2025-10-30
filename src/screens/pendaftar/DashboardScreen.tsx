@@ -16,6 +16,9 @@ import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { PendaftarStackParamList } from '../../navigation/PendaftarNavigator';
 import PendaftarStyles from '../../styles/PendaftarStyles';
+import LinearGradient from 'react-native-linear-gradient';
+// Import useAuth
+import { useAuth } from '../../contexts/AuthContext';
 
 const { width } = Dimensions.get('window');
 
@@ -23,8 +26,25 @@ type DashboardScreenNavigationProp = NativeStackNavigationProp<PendaftarStackPar
 
 const DashboardScreen = () => {
   const navigation = useNavigation<DashboardScreenNavigationProp>();
+  const { user } = useAuth(); 
+  
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const slideAnim = useState(new Animated.Value(-width * 0.7))[0];
+
+  // --- LOGIKA UTILITY BARU ---
+  const userName = user?.name || 'Calon Mahasiswa';
+  const getInitials = (name: string) => {
+    const parts = name.split(' ');
+    if (parts.length >= 2) {
+      return parts[0][0].toUpperCase() + parts[1][0].toUpperCase();
+    }
+    if (parts.length === 1 && parts[0]) {
+      return parts[0][0].toUpperCase();
+    }
+    return 'CM'; 
+  };
+  const avatarText = getInitials(userName);
+  // -----------------------------
 
   const toggleDrawer = () => {
     if (isDrawerOpen) {
@@ -74,10 +94,10 @@ const DashboardScreen = () => {
 
               <View style={PendaftarStyles.userInfo}>
                 <View style={PendaftarStyles.avatar}>
-                  <Text style={PendaftarStyles.avatarText}>SA</Text>
+                  <Text style={PendaftarStyles.avatarText}>{avatarText}</Text>
                 </View>
                 <View style={PendaftarStyles.userTextContainer}>
-                  <Text style={PendaftarStyles.userName}>Siti Nur Azizah</Text>
+                  <Text style={PendaftarStyles.userName}>{userName}</Text>
                   <Text style={PendaftarStyles.userRole}>Calon Mahasiswa</Text>
                 </View>
               </View>
@@ -125,9 +145,16 @@ const DashboardScreen = () => {
             </TouchableOpacity>
           </View>
 
-          <TouchableOpacity style={PendaftarStyles.registerButton}
+          <TouchableOpacity 
           onPress={() => navigation.navigate('TataCara')}>
-            <Text style={PendaftarStyles.registerButtonText}>Daftar Mahasiswa Baru</Text>
+            <LinearGradient
+                colors={['#DABC4E', '#F5EFD3']}
+                start={{ x: 0, y: 1 }}
+                end={{ x: 1, y: 1 }}
+                style={PendaftarStyles.registerButton}
+              >
+                <Text style={PendaftarStyles.registerButtonText}>Daftar Mahasiswa Baru</Text>
+              </LinearGradient>
           </TouchableOpacity>
 
           <View style={PendaftarStyles.newsSection}>

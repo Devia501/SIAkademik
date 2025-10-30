@@ -8,6 +8,7 @@ import {
   Image,
   TextInput,
   Alert,
+  StyleSheet, // Import StyleSheet
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
@@ -16,6 +17,7 @@ import { PendaftarStackParamList } from '../../navigation/PendaftarNavigator';
 import PendaftarStyles from '../../styles/PendaftarStyles';
 import PendaftaranStyles from '../../styles/PendaftaranStyles';
 import { pick, types } from '@react-native-documents/picker';
+import LinearGradient from 'react-native-linear-gradient';
 
 type DataPrestasiNavigationProp = NativeStackNavigationProp<
   PendaftarStackParamList,
@@ -57,6 +59,29 @@ const DataPrestasiScreen = () => {
       ...prestasiList,
       { nama: '', tahun: '', jenis: '', tingkat: '', penyelenggara: '', peringkat: '', file: null },
     ]);
+  };
+
+  const handleDeletePrestasi = (index: number) => {
+    if (prestasiList.length === 1) {
+      Alert.alert('Peringatan', 'Minimal harus ada satu form prestasi.');
+      return;
+    }
+    Alert.alert(
+      'Konfirmasi Hapus',
+      'Anda yakin ingin menghapus data prestasi ini?',
+      [
+        { text: 'Batal', style: 'cancel' },
+        {
+          text: 'Hapus',
+          onPress: () => {
+            const updated = prestasiList.filter((_, i) => i !== index);
+            setPrestasiList(updated);
+            Alert.alert('Sukses', 'Data prestasi berhasil dihapus');
+          },
+          style: 'destructive',
+        },
+      ]
+    );
   };
 
   const handleChange = (index: number, key: keyof PrestasiItem, value: string) => {
@@ -110,7 +135,7 @@ const DataPrestasiScreen = () => {
   return (
     <SafeAreaView style={PendaftarStyles.container} edges={['top']}>
       <ScrollView showsVerticalScrollIndicator={false}>
-        {/* Header */}
+        {/* Header (Tidak Berubah) */}
         <View style={PendaftarStyles.headerContainer}>
           <ImageBackground
             source={require('../../assets/images/Rectangle 52.png')}
@@ -125,7 +150,7 @@ const DataPrestasiScreen = () => {
           </ImageBackground>
         </View>
 
-        {/* Progress Bar */}
+        {/* Progress Bar (Tidak Berubah) */}
         <View style={PendaftaranStyles.progressContainer}>
           <View style={PendaftaranStyles.progressBar}>
             <View style={[PendaftaranStyles.progressStep, PendaftaranStyles.progressStepActive]} />
@@ -146,60 +171,62 @@ const DataPrestasiScreen = () => {
               <Text style={PendaftaranStyles.sectionTitle}>Data Prestasi</Text>
             </View>
 
-            {/* Info Badges */}
+            {/* Info Badges (Tidak Berubah) */}
             <View
-              style={{
-                flexDirection: 'row',
-                justifyContent: 'space-between',
-                marginBottom: 16,
-                marginTop: 2,
-              }}
+              style={styles.infoBadgeRow}
             >
               <View
-                style={{
-                  flexDirection: 'row',
-                  alignItems: 'center',
-                  backgroundColor: '#CDBB66',
-                  borderWidth: 1,
-                  borderColor: '#000',
-                  borderRadius: 20,
-                  paddingHorizontal: 10,
-                  paddingVertical: 4,
-                  flexShrink: 1,
-                  left: 22,
-                }}
+                style={[styles.infoBadge, { left: 22 }]}
               >
                 <Image
                   source={require('../../assets/icons/material-symbols_info (1).png')}
-                  style={{ width: 16, height: 16, marginRight: 6 }}
+                  style={styles.infoIcon}
                   resizeMode="contain"
                 />
-                <Text style={{ color: '#ffffffff', fontSize: 8, fontWeight: '600' }}>
+                <Text style={styles.infoText}>
                   Upload Prestasi Jika Ada
                 </Text>
               </View>
 
               <View
-                style={{
-                  flexDirection: 'row',
-                  alignItems: 'center',
-                  backgroundColor: '#CDBB66',
-                  borderWidth: 1,
-                  borderColor: '#000',
-                  borderRadius: 20,
-                  paddingHorizontal: 10,
-                  paddingVertical: 4,
-                  right: 25,
-                }}
+                style={[styles.infoBadge, { right: 25 }]}
               >
-                <Text style={{ color: '#ffffffff', fontSize: 8, fontWeight: '600' }}>
+                <Text style={styles.infoText}>
                   Bisa diisi lebih dari 1 prestasi
                 </Text>
               </View>
             </View>
 
+            {/* LOOPING PRESTASI DENGAN PEMBEDA */}
             {prestasiList.map((item, index) => (
-              <View key={index} style={{ marginBottom: 20 }}>
+              <View 
+                key={index} 
+                style={[
+                  styles.prestasiItemContainer,
+                  index > 0 && styles.additionalPrestasi
+                ]}
+              >
+                {/* Judul Pembeda dan Tombol Hapus */}
+                <View style={styles.prestasiHeader}>
+                  <Text style={styles.prestasiTitle}>
+                    {index === 0 ? 'Prestasi Utama' : `Prestasi Tambahan #${index}`}
+                  </Text>
+                  
+                  {index > 0 && (
+                    <TouchableOpacity
+                      onPress={() => handleDeletePrestasi(index)}
+                      style={styles.deletePrestasiButton}
+                    >
+                      <Image
+                        source={require('../../assets/icons/line-md_trash.png')}
+                        style={styles.deletePrestasiIcon}
+                      />
+                      <Text style={styles.deletePrestasiText}>Hapus</Text>
+                    </TouchableOpacity>
+                  )}
+                </View>
+
+
                 {/* Input Fields */}
                 {[
                   { label: 'Nama Prestasi', key: 'nama' },
@@ -210,21 +237,19 @@ const DataPrestasiScreen = () => {
                   { label: 'Peringkat', key: 'peringkat' },
                 ].map((field, i) => (
                   <View key={i} style={PendaftaranStyles.formGroup}>
-                    <Text style={PendaftaranStyles.label}>{field.label}</Text>
+                    <Text style={styles.label}>{field.label}</Text>
                     <TextInput
                       style={PendaftaranStyles.input}
                       value={item[field.key as keyof PrestasiItem] as string}
                       onChangeText={(val) => handleChange(index, field.key as keyof PrestasiItem, val)}
-                      placeholder=""
-                      placeholderTextColor="#999"
                       keyboardType={field.keyboardType as any}
                     />
                   </View>
                 ))}
 
-                {/* Upload Sertifikat */}
+                {/* Upload Sertifikat (Tidak Berubah) */}
                 <View style={PendaftaranStyles.formGroup}>
-                  <Text style={PendaftaranStyles.label}>Upload Sertifikat Prestasi</Text>
+                  <Text style={styles.label}>Upload Sertifikat Prestasi</Text>
                   <TouchableOpacity
                     style={PendaftaranStyles.uploadButton}
                     onPress={() => handlePickDocument(index)}
@@ -279,46 +304,36 @@ const DataPrestasiScreen = () => {
               </View>
             ))}
 
-            {/* Add Prestasi */}
+            {/* Add Prestasi (Tidak Berubah) */}
             <TouchableOpacity
-              style={{
-                flexDirection: 'row',
-                alignItems: 'center',
-                justifyContent: 'center',
-                backgroundColor: '#E5C363',
-                borderColor: '#000',
-                borderWidth: 1,
-                borderRadius: 30,
-                paddingVertical: 4,
-                paddingHorizontal: 20,
-                alignSelf: 'flex-start',
-                left: 175,
-              }}
+              style={styles.addPrestasiButton}
               onPress={handleAddPrestasi}
             >
               <View
-                style={{
-                  backgroundColor: '#000',
-                  borderRadius: 100,
-                  padding: 3,
-                  marginRight: 6,
-                }}
+                style={styles.addIconCircle}
               >
                 <Image
                   source={require('../../assets/icons/ic_baseline-plus.png')}
-                  style={{ width: 10, height: 10, tintColor: '#E5C363' }}
+                  style={styles.addIcon}
                   resizeMode="contain"
                 />
               </View>
-              <Text style={{ color: '#ffffffff', fontWeight: '700' }}>Add Prestasi</Text>
+              <Text style={styles.addPrestasiText}>Add Prestasi</Text>
             </TouchableOpacity>
 
-            {/* Next Button */}
+            {/* Next Button (Tidak Berubah) */}
             <TouchableOpacity
               style={PendaftaranStyles.nextButton}
               onPress={() => navigation.navigate('DataOrangTua')}
             >
-              <Text style={PendaftaranStyles.nextButtonText}>Next</Text>
+              <LinearGradient
+                colors={['#DABC4E', '#F5EFD3']}
+                start={{ x: 0, y: 0.5 }}
+                end={{ x: 1, y: 0.5 }}
+                style={PendaftaranStyles.nextButton}
+              >
+                <Text style={PendaftaranStyles.nextButtonText}>Next</Text>
+              </LinearGradient>
             </TouchableOpacity>
           </View>
         </View>
@@ -332,5 +347,124 @@ const DataPrestasiScreen = () => {
     </SafeAreaView>
   );
 };
+
+// --- GAYA BARU (DIREFACTORING DARI INLINE STYLE DAN PENAMBAHAN GAYA BARU) ---
+const styles = StyleSheet.create({
+  // Gaya untuk Info Badges
+  infoBadgeRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 16,
+    marginTop: 2,
+  },
+  infoBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#CDBB66',
+    borderWidth: 1,
+    borderColor: '#000',
+    borderRadius: 20,
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    flexShrink: 1,
+  },
+  infoIcon: {
+    width: 16,
+    height: 16,
+    marginRight: 6,
+  },
+  infoText: {
+    color: '#ffffffff',
+    fontSize: 8,
+    fontWeight: '600',
+  },
+
+  // Gaya untuk Prestasi Item
+  prestasiItemContainer: {
+    marginBottom: 20,
+    backgroundColor: '#F5F5F5', // Latar belakang ringan untuk pembeda
+    padding: 15,
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: '#E0E0E0',
+  },
+  additionalPrestasi: {
+    marginTop: 25,
+    backgroundColor: '#FFF0D9', // Latar belakang beda untuk item tambahan
+    borderColor: '#DABC4E',
+    borderWidth: 2,
+  },
+  prestasiHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 15,
+    paddingBottom: 5,
+    borderBottomWidth: 1,
+    borderBottomColor: '#DABC4E',
+  },
+  prestasiTitle: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#015023',
+  },
+  deletePrestasiButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#FFEBEE',
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: '#DC2626',
+  },
+  deletePrestasiText: {
+    fontSize: 12,
+    color: '#DC2626',
+    fontWeight: '600',
+    marginLeft: 4,
+  },
+  deletePrestasiIcon: {
+    width: 16,
+    height: 16,
+    tintColor: '#DC2626',
+  },
+
+  // Gaya untuk Add Prestasi Button
+  addPrestasiButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#E5C363',
+    borderColor: '#000',
+    borderWidth: 1,
+    borderRadius: 30,
+    paddingVertical: 4,
+    paddingHorizontal: 20,
+    alignSelf: 'flex-start',
+    left: 175,
+  },
+  addIconCircle: {
+    backgroundColor: '#000',
+    borderRadius: 100,
+    padding: 3,
+    marginRight: 6,
+  },
+  addIcon: {
+    width: 10,
+    height: 10,
+    tintColor: '#E5C363',
+  },
+  addPrestasiText: {
+    color: '#ffffffff',
+    fontWeight: '700',
+  },
+  label: {
+    fontSize: 13,
+    fontWeight: '500',
+    color: '#000000ff',
+    marginBottom: 8,
+  }
+});
 
 export default DataPrestasiScreen;

@@ -10,6 +10,8 @@ import DataAlamatScreen from '../screens/pendaftar/DataAlamatScreen';
 import DataAkademikScreen from '../screens/pendaftar/DataAkademikScreen';
 import DataPrestasiScreen from '../screens/pendaftar/DataPrestasiScreen';
 import DataOrangTuaScreen from '../screens/pendaftar/DataOrangTuaScreen';
+import RincianBiayaPendaftaranScreen from '../screens/pendaftar/RincianBiayaPendaftaranScreen';
+import VerifikasiPembayaranScreen from '../screens/pendaftar/VerifikasiPembayaranScreen';
 
 export type PendaftarStackParamList = {
   PendaftarDashboard: undefined;
@@ -22,6 +24,8 @@ export type PendaftarStackParamList = {
   DataAkademik: undefined;
   DataPrestasi: undefined;
   DataOrangTua: undefined;
+  RincianBiayaPendaftaran: undefined;
+  VerifikasiPembayaran: undefined;
 };
 
 const Stack = createNativeStackNavigator<PendaftarStackParamList>();
@@ -47,6 +51,8 @@ const PendaftarNavigator: React.FC = () => {
       <Stack.Screen name="DataAkademik" component={DataAkademikScreen} />
       <Stack.Screen name="DataPrestasi" component={DataPrestasiScreen} />
       <Stack.Screen name="DataOrangTua" component={DataOrangTuaScreen} />
+      <Stack.Screen name="RincianBiayaPendaftaran" component={RincianBiayaPendaftaranScreen} />
+      <Stack.Screen name="VerifikasiPembayaran" component={VerifikasiPembayaranScreen} />
     </Stack.Navigator>
   );
 };

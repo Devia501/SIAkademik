@@ -13,6 +13,8 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { AuthStackParamList } from '../../navigation/AppNavigator';
+// --- PENTING: Import LinearGradient ---
+import LinearGradient from 'react-native-linear-gradient';
 
 type LandingScreenNavigationProp = NativeStackNavigationProp<
   AuthStackParamList,
@@ -25,68 +27,81 @@ const LandingScreen = () => {
   const navigation = useNavigation<LandingScreenNavigationProp>();
 
   return (
-    <SafeAreaView style={styles.container} edges={['top']}>
-      <ImageBackground
-        source={require('../../assets/images/campus-building.jpeg')}
-        style={styles.backgroundImage}
-        imageStyle={styles.imageStyle}
-      >
-        <View style={styles.overlay} />
-      </ImageBackground>
+    // GANTI SafeAreaView DENGAN LinearGradient
+    <LinearGradient
+      colors={['#015023', '#00695C']} // Warna gradient yang diminta
+      style={styles.container}
+      start={{ x: 0.5, y: 0.5 }} // Mulai dari atas
+      end={{ x: 1, y: 2 }}   // Berakhir di bawah
+    >
+      <SafeAreaView style={styles.safeAreaContent} edges={['top']}>
+        <ImageBackground
+          source={require('../../assets/images/campus-building.jpeg')}
+          style={styles.backgroundImage}
+          imageStyle={styles.imageStyle}
+        >
+          <View style={styles.overlay} />
+        </ImageBackground>
 
-      <View style={styles.waveWrapper}>
-        <Image
-          source={require('../../assets/images/wave1.png')}
-          style={[styles.waveImage, styles.wave1]}
-          resizeMode="cover"
-        />
-
-        <Image
-          source={require('../../assets/images/wave.png')}
-          style={[styles.waveImage, styles.wave2]}
-          resizeMode="cover"
-        />
-      </View>
-
-      <View style={styles.contentContainer}>
-        <View style={styles.logoContainer}>
+        <View style={styles.waveWrapper}>
           <Image
-            source={require('../../assets/images/logo-ugn2.png')}
-            style={styles.logo}
-            resizeMode="contain"
+            source={require('../../assets/images/wave1.png')}
+            style={[styles.waveImage, styles.wave1]}
+            resizeMode="cover"
+          />
+
+          <Image
+            source={require('../../assets/images/wave.png')}
+            style={[styles.waveImage, styles.wave2]}
+            resizeMode="cover"
           />
         </View>
 
-        <Text style={styles.title}>UNIVERSITAS GLOBAL NUSANTARA</Text>
+        <View style={styles.contentContainer}>
+          <View style={styles.logoContainer}>
+            <Image
+              source={require('../../assets/images/logo-ugn2.png')}
+              style={styles.logo}
+              resizeMode="contain"
+            />
+          </View>
 
-        <View style={styles.buttonContainer}>
-          <TouchableOpacity
-            style={[styles.button, styles.loginButton]}
-            onPress={() => navigation.navigate('Login')}
-            activeOpacity={0.8}
-          >
-            <Text style={styles.loginButtonText}>Login</Text>
-          </TouchableOpacity>
+          <Text style={styles.title}>UNIVERSITAS GLOBAL NUSANTARA</Text>
 
-          <TouchableOpacity
-            style={[styles.button, styles.registerButton]}
-            onPress={() => navigation.navigate('Register')}
-            activeOpacity={0.8}
-          >
-            <Text style={styles.registerButtonText}>Register</Text>
-          </TouchableOpacity>
+          <View style={styles.buttonContainer}>
+            <TouchableOpacity
+              style={[styles.button, styles.loginButton]}
+              onPress={() => navigation.navigate('Login')}
+              activeOpacity={0.8}
+            >
+              <Text style={styles.loginButtonText}>Login</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={[styles.button, styles.registerButton]}
+              onPress={() => navigation.navigate('Register')}
+              activeOpacity={0.8}
+            >
+              <Text style={styles.registerButtonText}>Register</Text>
+            </TouchableOpacity>
+          </View>
         </View>
-      </View>
 
-      <View style={styles.navigationBarSpacer} />
-    </SafeAreaView>
+        <View style={styles.navigationBarSpacer} />
+      </SafeAreaView>
+    </LinearGradient>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
-    backgroundColor: '#015023',
+    // Dipindahkan ke LinearGradient
+    flex: 1, 
+    // backgroundColor: '#015023', <-- DIHAPUS
+  },
+  safeAreaContent: {
+    // Tambahkan style untuk memastikan konten SafeAreaView mengambil seluruh ruang
+    flex: 1, 
   },
   backgroundImage: {
     width,
@@ -185,7 +200,7 @@ const styles = StyleSheet.create({
   },
   navigationBarSpacer: {
     height: Platform.OS === 'android' ? 48 : 0,
-    backgroundColor: '#015023',
+    backgroundColor: 'transparent', // Ubah agar gradient tetap terlihat
   },
 });
 

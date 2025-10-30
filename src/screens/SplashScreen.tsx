@@ -33,7 +33,7 @@ const SplashScreen: React.FC<Props> = ({ navigation }) => {
     const timer = setTimeout(() => {
       Animated.timing(fadeAnim, {
         toValue: 0,
-        duration: 500, // Durasi fade out
+        duration: 700, // Durasi fade out
         useNativeDriver: true,
       }).start(() => {
         // Navigasi setelah animasi fade out selesai

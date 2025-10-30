@@ -13,6 +13,7 @@ import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { PendaftarStackParamList } from '../../navigation/PendaftarNavigator';
 import PendaftarStyles from '../../styles/PendaftarStyles';
+import LinearGradient from 'react-native-linear-gradient';
 
 type InformasiPentingNavigationProp = NativeStackNavigationProp<PendaftarStackParamList, 'InformasiPenting'>;
 
@@ -86,13 +87,20 @@ const InformasiPentingScreen = () => {
 
             <Text style={styles.infoText}>
               <Text style={styles.numberText}>8. </Text>
-              Apabila ada kendala dalam pengisian, silakan menghubungi WA : 0811-234-1949 atau email ke ugn@ugn.ac.id atau program studi tujuan Saudara.
+              Apabila ada kendala dalam pengisian, silakan menghubungi WA : 08xx-xxxx-xxxx atau email ke ugn@ugn.ac.id atau program studi tujuan Saudara.
             </Text>
           </View>
           
           <TouchableOpacity style={styles.daftarButton}
           onPress={() => navigation.navigate('PendaftaranMahasiswa')}>
-            <Text style={styles.daftarButtonText}>Daftar</Text>
+            <LinearGradient
+                colors={['#DABC4E', '#F5EFD3']}
+                start={{ x: 0, y: 0.5 }}
+                end={{ x: 1, y: 0.5 }}
+                style={styles.daftarButton}
+              >
+                <Text style={styles.daftarButtonText}>Daftar</Text>
+              </LinearGradient>
           </TouchableOpacity>
         </View>
       </ScrollView>
@@ -119,19 +127,21 @@ const styles = StyleSheet.create({
     lineHeight: 18,
     marginBottom: 10,
     textAlign: 'left',
+    fontStyle: 'italic',
   },
   numberText: {
     fontWeight: 'bold',
     color: '#000',
   },
   daftarButton: {
-    backgroundColor: '#D4AF37',
     borderRadius: 25,
-    paddingVertical: 12,
     alignItems: 'center',
-    marginTop: 20,
-    marginBottom: 100,
-    marginHorizontal: 80,
+    justifyContent: 'center',
+    paddingVertical: 6,
+    marginTop: 10,
+    marginBottom: 40, 
+    alignSelf: 'center',
+    width: '65%',
   },
   daftarButtonText: {
     fontSize: 16,

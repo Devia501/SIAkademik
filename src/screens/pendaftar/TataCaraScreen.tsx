@@ -13,6 +13,7 @@ import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { PendaftarStackParamList } from '../../navigation/PendaftarNavigator';
 import PendaftarStyles from '../../styles/PendaftarStyles';
+import LinearGradient from 'react-native-linear-gradient';
 
 type TataCaraNavigationProp = NativeStackNavigationProp<PendaftarStackParamList, 'TataCara'>;
 
@@ -185,7 +186,14 @@ const TataCaraScreen = () => {
 
           <TouchableOpacity style={styles.daftarButton}
           onPress={() => navigation.navigate('InformasiPenting')}>
-            <Text style={styles.daftarButtonText}>Daftar</Text>
+            <LinearGradient
+                colors={['#DABC4E', '#F5EFD3']}
+                start={{ x: 0, y: 0.5 }}
+                end={{ x: 1, y: 0.5 }}
+                style={styles.daftarButton}
+              >
+                <Text style={styles.daftarButtonText}>Daftar</Text>
+              </LinearGradient>
           </TouchableOpacity>
         </View>
 
@@ -346,13 +354,14 @@ const styles = StyleSheet.create({
     width: '60%',
   },
   daftarButton: {
-    backgroundColor: '#D4AF37',
     borderRadius: 25,
-    paddingVertical: 10,
     alignItems: 'center',
-    marginTop: 22,
-    marginBottom: 104,
-    marginHorizontal: 80,
+    justifyContent: 'center',
+    paddingVertical: 8,
+    marginTop: 7,
+    marginBottom: 50, 
+    alignSelf: 'center',
+    width: '60%',
   },
   daftarButtonText: {
     fontSize: 16,

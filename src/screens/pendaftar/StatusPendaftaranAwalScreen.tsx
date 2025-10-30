@@ -16,6 +16,7 @@ import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { PendaftarStackParamList } from '../../navigation/PendaftarNavigator';
 import PendaftarStyles from '../../styles/PendaftarStyles';
+import LinearGradient from 'react-native-linear-gradient';
 
 const { width } = Dimensions.get('window');
 
@@ -62,7 +63,14 @@ const StatusPendaftaranAwalScreen = () => {
             style={styles.registerButton}
             onPress={() => navigation.navigate('TataCara')}
           >
-            <Text style={styles.registerButtonText}>Daftar Sekarang</Text>
+            <LinearGradient
+                colors={['#DABC4E', '#F5EFD3']}
+                start={{ x: 0, y: 0.5 }}
+                end={{ x: 1, y: 0.5 }}
+                style={styles.registerButton}
+              >
+                <Text style={styles.registerButtonText}>Daftar Sekarang</Text>
+              </LinearGradient>
           </TouchableOpacity>
         </View>
 
@@ -170,13 +178,15 @@ const styles = StyleSheet.create({
     lineHeight: 22,
   },
   registerButton: {
-    marginBottom: 242,
-    backgroundColor: '#fddaacff',
+    marginBottom: 108.8,
     borderRadius: 15,
     paddingVertical: 8,
-    paddingHorizontal: 65,
-    borderWidth: 2,
-    borderColor: '#DABC4E',
+    paddingHorizontal: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 6, 
+    alignSelf: 'center',
+    width: '90%',
   },
   registerButtonText: {
     fontSize: 15,

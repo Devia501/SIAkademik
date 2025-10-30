@@ -1,68 +1,34 @@
 import React from 'react';
-import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import Icon from 'react-native-vector-icons/Ionicons';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import DashboardAdmin from '../screens/admin/DashboardAdmin';
+import AddManagerScreen from '../screens/admin/AddManagerScreen';
+// Import screen lain untuk admin di sini
 
-import AdminDashboardScreen from '../screens/admin/DashboardScreen';
-import ManageManagerScreen from '../screens/admin/ManageManagerScreen';
-import ManageStudentsScreen from '../screens/admin/ManageStudentsScreen';
-import AdminProfileScreen from '../screens/admin/ProfileScreen';
+export type AdminStackParamList = {
+  AdminDashboard: undefined;
+  AddManager: undefined;
+  // Tambahkan screen lain untuk admin
+  // ManagerList: undefined;
+  // UserList: undefined;
+  // AdminSettings: undefined;
+};
 
-const Tab = createBottomTabNavigator();
+const Stack = createNativeStackNavigator<AdminStackParamList>();
 
 const AdminNavigator = () => {
   return (
-    <Tab.Navigator
-      screenOptions={({ route }) => ({
-        tabBarIcon: ({ focused, color, size }) => {
-          let iconName: string;
-
-          switch (route.name) {
-            case 'Dashboard':
-              iconName = focused ? 'home' : 'home-outline';
-              break;
-            case 'Manager':
-              iconName = focused ? 'people' : 'people-outline';
-              break;
-            case 'Students':
-              iconName = focused ? 'school' : 'school-outline';
-              break;
-            case 'Profile':
-              iconName = focused ? 'person' : 'person-outline';
-              break;
-            default:
-              iconName = 'home-outline';
-          }
-
-          return <Icon name={iconName} size={size} color={color} />;
-        },
-        tabBarActiveTintColor: '#D4A853',
-        tabBarInactiveTintColor: '#999',
-        headerStyle: {
-          backgroundColor: '#166534',
-        },
-        headerTintColor: '#fff',
-        headerTitleStyle: {
-          fontWeight: 'bold',
-        },
-      })}
+    <Stack.Navigator
+      initialRouteName="AdminDashboard"
+      screenOptions={{
+        headerShown: false,
+        animation: 'fade',
+        animationDuration: 400,
+        fullScreenGestureEnabled: true,
+      }}
     >
-      <Tab.Screen name="Dashboard" component={AdminDashboardScreen} />
-      <Tab.Screen 
-        name="Manager" 
-        component={ManageManagerScreen}
-        options={{ title: 'Kelola Manager' }}
-      />
-      <Tab.Screen 
-        name="Students" 
-        component={ManageStudentsScreen}
-        options={{ title: 'Mahasiswa' }}
-      />
-      <Tab.Screen 
-        name="Profile" 
-        component={AdminProfileScreen}
-        options={{ title: 'Profil' }}
-      />
-    </Tab.Navigator>
+      <Stack.Screen name="AdminDashboard" component={DashboardAdmin} />
+      <Stack.Screen name="AddManager" component={AddManagerScreen} />
+    </Stack.Navigator>
   );
 };
 

@@ -9,44 +9,45 @@ import {
   StatusBar,
   Platform,
   Alert,
+  ActivityIndicator,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import AuthStyles from '../../styles/AuthStyles';
 import { AuthStackParamList } from '../../navigation/AppNavigator';
+import { useAuth } from '../../contexts/AuthContext';
 
 type RegisterScreenNavigationProp = NativeStackNavigationProp<AuthStackParamList, 'Register'>;
 
 const RegisterScreen = () => {
-  const [fullName, setFullName] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
-  const [showPassword, setShowPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-
+  const [fullName, setFullName] = useState<string>('');
+  const [email, setEmail] = useState<string>('');
+  const [password, setPassword] = useState<string>('');
+  const [confirmPassword, setConfirmPassword] = useState<string>('');
+  const [phone, setPhone] = useState<string>('');
+  const [showPassword, setShowPassword] = useState<boolean>(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
 
   const navigation = useNavigation<RegisterScreenNavigationProp>();
+  const { register } = useAuth();
 
-  const validateEmail = (email) => {
+  const validateEmail = (email: string) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return emailRegex.test(email);
   };
 
-  const validatePassword = (pass) => {
+  const validatePassword = (pass: string) => {
     if (!pass) return false;
     const hasMinLength = pass.length >= 8;
-    const hasUpperCase = /[A-Z]/.test(pass);
-    const hasLowerCase = /[a-z]/.test(pass);
-    const hasNumber = /[0-9]/.test(pass);
 
     return hasMinLength && hasUpperCase && hasLowerCase && hasNumber;
   };
 
-  const handleRegister = () => {
+  const handleRegister = async () => {
     if (!fullName.trim() || !email.trim() || !password.trim() || !confirmPassword.trim()) {
-      Alert.alert('Peringatan', 'Semua kolom wajib diisi!');
+      Alert.alert('Peringatan', 'Nama, Email, dan Password wajib diisi!');
       return;
     }
 
@@ -63,12 +64,36 @@ const RegisterScreen = () => {
     if (!validatePassword(password)) {
       Alert.alert(
         'Peringatan',
-        'Password harus minimal 8 karakter, mengandung huruf besar, huruf kecil, dan angka!'
+        'Password harus minimal 8 karakter!'
       );
       return;
     }
 
-    Alert.alert('Berhasil', 'Registrasi berhasil (dummy logic).');
+    setIsLoading(true);
+
+    try {
+      await register({
+        name: fullName.trim(),
+        email: email.trim().toLowerCase(),
+        password: password,
+        phone: phone.trim() || undefined,
+      });
+
+      Alert.alert(
+        'Berhasil',
+        'Registrasi berhasil! Silakan login dengan akun Anda.',
+        [
+          {
+            text: 'OK',
+            onPress: () => navigation.navigate('Login'),
+          },
+        ]
+      );
+    } catch (error: any) {
+      Alert.alert('Registrasi Gagal', error.message || 'Terjadi kesalahan saat registrasi.');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -85,7 +110,8 @@ const RegisterScreen = () => {
       </View>
 
       <View style={AuthStyles.formContainer}>
-        <Text style={AuthStyles.title}>Registrasi</Text>
+        <Text style={AuthStyles.title}>Registrasi Pendaftar</Text>
+        <Text style={styles.subtitle}>Daftar sebagai calon mahasiswa</Text>
 
         <Text style={AuthStyles.label}>Nama Lengkap</Text>
         <TextInput
@@ -93,6 +119,9 @@ const RegisterScreen = () => {
           value={fullName}
           onChangeText={setFullName}
           autoCapitalize="words"
+          placeholder="Masukkan nama lengkap"
+          placeholderTextColor="#999"
+          editable={!isLoading}
         />
 
         <Text style={AuthStyles.label}>Email</Text>
@@ -102,6 +131,20 @@ const RegisterScreen = () => {
           onChangeText={setEmail}
           keyboardType="email-address"
           autoCapitalize="none"
+          placeholder="nama@email.com"
+          placeholderTextColor="#999"
+          editable={!isLoading}
+        />
+
+        <Text style={AuthStyles.label}>No. Telepon (Opsional)</Text>
+        <TextInput
+          style={AuthStyles.input}
+          value={phone}
+          onChangeText={setPhone}
+          keyboardType="phone-pad"
+          placeholder="08123456789"
+          placeholderTextColor="#999"
+          editable={!isLoading}
         />
 
         <Text style={AuthStyles.label}>Password</Text>
@@ -111,11 +154,15 @@ const RegisterScreen = () => {
             value={password}
             onChangeText={setPassword}
             secureTextEntry={!showPassword}
+            placeholder="Min. 8 karakter"
+            placeholderTextColor="#999"
+            editable={!isLoading}
           />
           <TouchableOpacity
             onPress={() => setShowPassword(!showPassword)}
             style={styles.eyeButton}
             activeOpacity={0.7}
+            disabled={isLoading}
           >
             <Image
               source={
@@ -136,11 +183,15 @@ const RegisterScreen = () => {
             value={confirmPassword}
             onChangeText={setConfirmPassword}
             secureTextEntry={!showConfirmPassword}
+            placeholder="Ulangi password"
+            placeholderTextColor="#999"
+            editable={!isLoading}
           />
           <TouchableOpacity
             onPress={() => setShowConfirmPassword(!showConfirmPassword)}
             style={styles.eyeButton}
             activeOpacity={0.7}
+            disabled={isLoading}
           >
             <Image
               source={
@@ -157,20 +208,27 @@ const RegisterScreen = () => {
 
       <View style={styles.registerButtonSection}>
         <TouchableOpacity
-          style={AuthStyles.primaryButton}
+          style={[AuthStyles.primaryButton, isLoading && styles.buttonDisabled]}
           onPress={handleRegister}
           activeOpacity={0.8}
+          disabled={isLoading}
         >
-          <Text style={AuthStyles.primaryButtonText}>Register</Text>
+          {isLoading ? (
+            <ActivityIndicator color="#FFFFFF" />
+          ) : (
+            <Text style={AuthStyles.primaryButtonText}>Register</Text>
+          )}
         </TouchableOpacity>
       </View>
+
       <TouchableOpacity
-          onPress={() => navigation.navigate('Login')}
-          style={{ marginTop: -130, alignSelf: 'center' }}
-        >
-          <Text style={{ color: '#000000ff', fontSize: 12}}>
-            Sudah punya akun? <Text style={{color: '#F5F5DC', fontWeight: 'bold' }}>Login</Text>
-          </Text>
+        onPress={() => navigation.navigate('Login')}
+        style={styles.loginLink}
+        disabled={isLoading}
+      >
+        <Text style={styles.loginText}>
+          Sudah punya akun? <Text style={styles.loginTextBold}>Login</Text>
+        </Text>
       </TouchableOpacity>
 
       {/* Logo Background */}
@@ -186,6 +244,13 @@ const RegisterScreen = () => {
 };
 
 const styles = StyleSheet.create({
+  subtitle: {
+    fontSize: 12,
+    color: '#666',
+    marginBottom: 2,
+    marginTop: -10,
+    left: 10,
+  },
   inputDark: {
     backgroundColor: '#F0F0E8',
     color: '#000',
@@ -194,11 +259,15 @@ const styles = StyleSheet.create({
   passwordContainer: {
     flexDirection: 'row',
     alignItems: 'center',
+    position: 'relative',
   },
   eyeButton: {
     position: 'absolute',
-    right: 15,
-    top: 10,
+    right: 14,
+    bottom: 22,
+    padding: 5,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   eyeIcon: {
     width: 16,
@@ -206,7 +275,23 @@ const styles = StyleSheet.create({
   },
   registerButtonSection: {
     paddingHorizontal: 82,
-    paddingVertical: 128,
+    paddingVertical: 40,
+    top: -1,
+  },
+  buttonDisabled: {
+    opacity: 0.6,
+  },
+  loginLink: {
+    marginTop: -56,
+    alignSelf: 'center',
+    padding: 10,
+  },
+  loginText: {
+    color: '#000000',
+    fontSize: 12,
+  },
+  loginTextBold: {
+    color: '#ffffffff',
   },
   navigationBarSpacer: {
     height: Platform.OS === 'android' ? 48 : 0,

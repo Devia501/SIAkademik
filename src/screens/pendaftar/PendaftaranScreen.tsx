@@ -20,6 +20,7 @@ import { PendaftarStackParamList } from '../../navigation/PendaftarNavigator';
 import PendaftaranStyles from '../../styles/PendaftaranStyles';
 import PendaftarStyles from '../../styles/PendaftarStyles';
 import { pick, types } from '@react-native-documents/picker';
+import LinearGradient from 'react-native-linear-gradient';
 
 const { width } = Dimensions.get('window');
 
@@ -750,7 +751,14 @@ const PendaftaranScreen = () => {
             style={PendaftaranStyles.nextButton}
             onPress={() => navigation.navigate('DataAlamat')}
           >
-            <Text style={PendaftaranStyles.nextButtonText}>Next</Text>
+            <LinearGradient
+                colors={['#DABC4E', '#F5EFD3']}
+                start={{ x: 0, y: 0.5 }}
+                end={{ x: 1, y: 0.5 }}
+                style={PendaftaranStyles.nextButton}
+              >
+                <Text style={PendaftaranStyles.nextButtonText}>Next</Text>
+              </LinearGradient>
           </TouchableOpacity>
         </View>
       </ScrollView>

@@ -17,6 +17,7 @@ import { PendaftarStackParamList } from '../../navigation/PendaftarNavigator';
 import PendaftarStyles from '../../styles/PendaftarStyles';
 import PendaftaranStyles from '../../styles/PendaftaranStyles';
 import { pick, types } from '@react-native-documents/picker';
+import LinearGradient from 'react-native-linear-gradient';
 
 type DataAkademikNavigationProp = NativeStackNavigationProp<
   PendaftarStackParamList,
@@ -457,7 +458,14 @@ const DataAkademikScreen = () => {
               style={PendaftaranStyles.nextButton}
               onPress={() => navigation.navigate('DataPrestasi')}
             >
-              <Text style={PendaftaranStyles.nextButtonText}>Next</Text>
+              <LinearGradient
+                colors={['#DABC4E', '#F5EFD3']}
+                start={{ x: 0, y: 0.5 }}
+                end={{ x: 1, y: 0.5 }}
+                style={PendaftaranStyles.nextButton}
+              >
+                <Text style={PendaftaranStyles.nextButtonText}>Next</Text>
+              </LinearGradient>
             </TouchableOpacity>
           </View>
         </View>

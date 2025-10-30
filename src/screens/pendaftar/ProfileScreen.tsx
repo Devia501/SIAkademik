@@ -8,12 +8,16 @@ import {
   ImageBackground,
   StyleSheet,
   Dimensions,
+  Alert, // Impor Alert untuk konfirmasi logout
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { PendaftarStackParamList } from '../../navigation/PendaftarNavigator';
 import PendaftarStyles from '../../styles/PendaftarStyles';
+import LinearGradient from 'react-native-linear-gradient';
+// Import useAuth
+import { useAuth } from '../../contexts/AuthContext'; // Sesuaikan path jika perlu
 
 const { width } = Dimensions.get('window');
 
@@ -24,7 +28,21 @@ type ProfileScreenNavigationProp = NativeStackNavigationProp<
 
 const ProfileScreen = () => {
   const navigation = useNavigation<ProfileScreenNavigationProp>();
+  // Ambil data user dan fungsi logout dari AuthContext
+  const { user, logout } = useAuth(); 
+  const userName = user?.name || 'Calon Mahasiswa';
 
+  const handleLogout = () => {
+    Alert.alert(
+      "Konfirmasi Logout",
+      "Apakah Anda yakin ingin keluar?",
+      [
+        { text: "Batal", style: "cancel" },
+        { text: "Ya, Keluar", onPress: logout } // Panggil fungsi logout
+      ]
+    );
+  };
+  
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
       <ScrollView
@@ -38,11 +56,29 @@ const ProfileScreen = () => {
             style={PendaftarStyles.waveBackground}
             resizeMode="cover"
           >
-            <Text style={styles.pageTitle}>Profile</Text>
+            {/* CONTAINER BARU UNTUK JUDUL DAN LOGOUT */}
+            <View style={styles.headerRow}>
+              <Text style={styles.pageTitle}>Profile</Text>
+
+              {/* TOMBOL LOGOUT ICON di KANAN ATAS */}
+              <TouchableOpacity
+                style={styles.logoutIconContainer}
+                onPress={handleLogout}
+              >
+                <Image
+                  source={require('../../assets/icons/mingcute_exit-line.png')}
+                  style={styles.logoutIcon}
+                  resizeMode="contain"
+                />
+              </TouchableOpacity>
+              {/* AKHIR TOMBOL LOGOUT ICON */}
+            </View>
+
 
             <View style={styles.profileHeader}>
               <View style={styles.avatarContainer}>
                 <Image
+                  // Catatan: Gambar avatar ini masih statis
                   source={require('../../assets/images/profile 1.png')}
                   style={styles.profileImage}
                   resizeMode="cover"
@@ -57,7 +93,8 @@ const ProfileScreen = () => {
               </View>
 
               <View style={styles.profileInfo}>
-                <Text style={styles.profileName}>Siti Nur Azizah</Text>
+                {/* Gunakan nama dinamis */}
+                <Text style={styles.profileName}>{userName}</Text> 
                 <View style={styles.roleBadge}>
                   <Image
                     source={require('../../assets/icons/material-symbols_person-rounded.png')}
@@ -73,7 +110,14 @@ const ProfileScreen = () => {
           
         </View>
         <View style={styles.accountSection}>
-          <Text style={styles.sectionTitle}>Account</Text>
+          <LinearGradient
+                colors={['#F5EFD3', '#DABC4E']}
+                start={{ x: 0, y: 1 }}
+                end={{ x: 1, y: 0.5 }}
+                style={styles.accountSection}
+              >
+                <Text style={styles.sectionTitle}>Account</Text>
+              </LinearGradient>
         </View>
 
         <View style={styles.bottomSection}>
@@ -163,6 +207,13 @@ const styles = StyleSheet.create({
     position: 'relative',
     zIndex:-1,
   },
+  // --- Gaya baru untuk membungkus Judul dan Ikon Logout ---
+  headerRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingRight: 20, // Tambahkan padding untuk ikon di kanan
+  },
   pageTitle: {
     fontSize: 28,
     fontWeight: 'bold',
@@ -170,14 +221,24 @@ const styles = StyleSheet.create({
     marginTop: 20,
     marginLeft: 20,
     textShadowColor: '#000000ff',
-    textShadowOffset: { width: 2, height: 1 },
+    textShadowOffset: { width: 1, height: 1 },
     textShadowRadius: 1,
   },
+  // --- Gaya Logout Icon ---
+  logoutIconContainer: {
+    padding: 10,
+    marginTop: 20,
+    // Menyesuaikan posisi agar sejajar dengan judul
+  },
+  logoutIcon: {
+    width: 24,
+    height: 24, 
+  },
+  // -------------------------
   profileHeader: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 28,
-
   },
   avatarContainer: {
     position: 'relative',
@@ -244,16 +305,17 @@ const styles = StyleSheet.create({
   },
   accountSection: {
     marginTop: 20,
-    marginLeft: 26,
-    bottom: 130,
+    marginLeft: 18,
+    bottom: 80,
+    borderRadius: 20,
+    alignSelf: 'flex-start',
   },
   sectionTitle: {
-    fontSize: 16,
+    fontSize: 20,
     fontWeight: 'bold',
     color: '#ffffffff',
-    backgroundColor: '#DABC4E',
-    paddingHorizontal: 36,
-    paddingVertical: 6,
+    paddingHorizontal: 38,
+    paddingVertical: 4,
     borderRadius: 20,
     alignSelf: 'flex-start',
     borderWidth: 2,
