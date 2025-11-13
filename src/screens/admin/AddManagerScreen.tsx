@@ -1,369 +1,296 @@
-import React, { useState } from 'react';
-import {
+// src/screens/admin/KelolaManager.tsx (AddManagerScreen.tsx)
+
+import React, { useState, useEffect, useCallback } from 'react';
+import { // Tambahkan ActivityIndicator dan RefreshControl
   View,
   Text,
-  TextInput,
   TouchableOpacity,
-  StyleSheet,
-  Alert,
-  ActivityIndicator,
   ScrollView,
+  Image,
+  StyleSheet,
+  ImageBackground, 
+  ActivityIndicator,
+  RefreshControl,
+  Alert, // Tambahkan Alert untuk notifikasi error
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useIsFocused } from '@react-navigation/native'; // Tambahkan useIsFocused
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { AdminStackParamList } from '../../navigation/AdminNavigator';
 
+// Import Services dan Styles
+import { AdminStyles } from '../../styles/AdminStyles'; 
+import { AdminStackParamList } from '../../navigation/AdminNavigator'; 
+import { ManagerStyles, Colors } from '../../styles/ManagerStyles'; // Diperlukan untuk header icons
+import { adminService, UserManagement } from '../../services/apiService'; // Import API Service
+
+// Definisi Tipe Navigasi
 type AddManagerScreenNavigationProp = NativeStackNavigationProp<AdminStackParamList, 'AddManager'>;
 
-const AddManagerScreen = ({ navigation }: any) => {
-  const [name, setName] = useState<string>('');
-  const [email, setEmail] = useState<string>('');
-  const [phone, setPhone] = useState<string>('');
-  const [password, setPassword] = useState<string>('');
-  const [showPassword, setShowPassword] = useState<boolean>(false);
-  const [isLoading, setIsLoading] = useState<boolean>(false);
+// Komponen Card Manajer Dinamis
+interface ManagerCardProps {
+  manager: UserManagement; // Menggunakan tipe dari apiService
+  onPress: (managerId: number) => void;
+}
 
-  const validateEmail = (email: string) => {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return emailRegex.test(email);
-  };
+const ManagerCard: React.FC<ManagerCardProps> = ({ manager, onPress }) => (
+  <TouchableOpacity 
+    style={[localStyles.managerCard, { width: '100%', alignSelf: 'center' }]} 
+    onPress={() => onPress(manager.id_user)}
+  >
+    <Image 
+      source={require('../../assets/icons/ix_user-profile-filled.png')} 
+      style={localStyles.managerIcon}
+      resizeMode="contain"
+    />
+    <View style={localStyles.managerInfo}>
+      <Text style={localStyles.managerName}>{manager.name}</Text>
+      <Text style={localStyles.managerRole}>{manager.role.toUpperCase()}</Text>
+    </View>
+  </TouchableOpacity>
+);
 
-  const validatePassword = (pass: string) => {
-    if (!pass) return false;
-    const hasMinLength = pass.length >= 8;
-    const hasUpperCase = /[A-Z]/.test(pass);
-    const hasLowerCase = /[a-z]/.test(pass);
-    const hasNumber = /[0-9]/.test(pass);
-    return hasMinLength && hasUpperCase && hasLowerCase && hasNumber;
-  };
+const AddManagerScreen = () => { // Ganti nama komponen menjadi AddManagerScreen
+  const navigation = useNavigation<AddManagerScreenNavigationProp>();
+  const isFocused = useIsFocused();
+  
+  // State untuk data dan loading
+  const [managers, setManagers] = useState<UserManagement[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
 
-  const handleAddManager = async () => {
-    // Validasi input
-    if (!name.trim() || !email.trim() || !password.trim()) {
-      Alert.alert('Peringatan', 'Nama, Email, dan Password wajib diisi!');
-      return;
-    }
-
-    if (!validateEmail(email)) {
-      Alert.alert('Peringatan', 'Format email tidak valid!');
-      return;
-    }
-
-    // Pastikan email menggunakan domain manager
-    if (!email.includes('manager@') && !email.includes('.manager@')) {
-      Alert.alert(
-        'Peringatan',
-        'Email manager harus mengandung "manager" (contoh: nama.manager@ugn.ac.id)'
-      );
-      return;
-    }
-
-    if (!validatePassword(password)) {
-      Alert.alert(
-        'Peringatan',
-        'Password harus minimal 8 karakter, mengandung huruf besar, huruf kecil, dan angka!'
-      );
-      return;
-    }
-
-    setIsLoading(true);
-
+  // 📌 Fungsi Mengambil Data dari API
+  const fetchManagers = useCallback(async () => {
     try {
-      // TODO: Implement API call
-      // const response = await api.post('/admin/create-manager', { name, email, phone, password });
-
-      // Get existing managers
-      const managersData = await AsyncStorage.getItem('@managers');
-      const managers = managersData ? JSON.parse(managersData) : [];
-
-      // Check if email already exists
-      const existingManager = managers.find((m: any) => m.email === email);
-      if (existingManager) {
-        Alert.alert('Peringatan', 'Email manager sudah terdaftar!');
-        setIsLoading(false);
-        return;
-      }
-
-      // Create new manager
-      const newManager = {
-        id: `manager-${Date.now()}`,
-        name: name.trim(),
-        email: email.trim().toLowerCase(),
-        phone: phone.trim() || undefined,
-        password: password, // In production, password should be hashed on backend
-        role: 'manager',
-        createdAt: new Date().toISOString(),
-        createdBy: 'admin', // Should be actual admin ID
-      };
-
-      // Save to storage
-      managers.push(newManager);
-      await AsyncStorage.setItem('@managers', JSON.stringify(managers));
-
-      Alert.alert(
-        'Berhasil',
-        `Manager ${name} berhasil ditambahkan!\n\nEmail: ${email}\nPassword: ${password}\n\nSimpan kredensial ini dan berikan kepada manager.`,
-        [
-          {
-            text: 'OK',
-            onPress: () => {
-              // Reset form
-              setName('');
-              setEmail('');
-              setPhone('');
-              setPassword('');
-              // Navigate back or to manager list
-              if (navigation.canGoBack()) {
-                navigation.goBack();
-              }
-            },
-          },
-        ]
-      );
-    } catch (error: any) {
-      Alert.alert('Error', error.message || 'Gagal menambahkan manager');
+      // Panggil API Laravel untuk mendapatkan daftar user dengan role 'manager' atau 'admin'
+      const response = await adminService.listUsers({ 
+        role: 'manager,admin', // Sesuaikan dengan kebutuhan filtering di backend
+      });
+      // Filter di frontend jika backend tidak mendukung filtering role
+      const filteredManagers = response.data.filter(u => u.role === 'manager' || u.role === 'admin');
+      setManagers(filteredManagers);
+    } catch (error) {
+      console.error('❌ Failed to fetch managers:', error);
+      Alert.alert('Error', 'Gagal memuat data manager. Periksa koneksi API.');
     } finally {
       setIsLoading(false);
+      setRefreshing(false);
     }
+  }, []);
+
+  // Panggil saat komponen dimuat atau fokus
+  useEffect(() => {
+    if (isFocused) {
+      setIsLoading(true);
+      fetchManagers();
+    }
+  }, [isFocused, fetchManagers]);
+
+  const onRefresh = () => {
+    setRefreshing(true);
+    fetchManagers();
   };
 
-  const generatePassword = () => {
-    const length = 12;
-    const charset = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-    let generatedPassword = '';
-    
-    // Ensure at least one uppercase, lowercase, and number
-    generatedPassword += 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'[Math.floor(Math.random() * 26)];
-    generatedPassword += 'abcdefghijklmnopqrstuvwxyz'[Math.floor(Math.random() * 26)];
-    generatedPassword += '0123456789'[Math.floor(Math.random() * 10)];
-    
-    // Fill the rest
-    for (let i = generatedPassword.length; i < length; i++) {
-      generatedPassword += charset[Math.floor(Math.random() * charset.length)];
-    }
-    
-    // Shuffle the password
-    generatedPassword = generatedPassword.split('').sort(() => Math.random() - 0.5).join('');
-    
-    setPassword(generatedPassword);
+  const handleViewManager = (managerId: number) => {
+    // Navigasi ke halaman detail atau edit, atau langsung ke halaman CRUD
+    console.log(`Lihat detail manajer ID: ${managerId}`);
+    navigation.navigate('AddNewManager'); // Arahkan ke halaman CRUD untuk aksi lanjutan
+  };
+  
+  const handleAddNewManager = () => {
+     navigation.navigate('AddNewManager'); 
   };
 
   return (
-    <SafeAreaView style={styles.container} edges={['top']}>
-      <View style={styles.header}>
-        <TouchableOpacity
-          onPress={() => navigation.goBack()}
-          style={styles.backButton}
-        >
-          <Text style={styles.backButtonText}>← Kembali</Text>
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>Tambah Manager</Text>
-      </View>
+    <SafeAreaView style={AdminStyles.container} edges={['top', 'bottom']}>
+      <ScrollView 
+        showsVerticalScrollIndicator={false} 
+        contentContainerStyle={localStyles.scrollContent}
+        refreshControl={
+            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={['#DABC4E']} tintColor="#DABC4E" />
+        }
+      >
+        
+        {/* Header */}
+        <View style={AdminStyles.headerContainer}>
+          <ImageBackground
+            source={require('../../assets/images/App Bar - Bottom.png')}
+            style={AdminStyles.waveBackground}
+            resizeMode="cover"
+          >
+            <View style={AdminStyles.headerContent}>
+              <Text style={AdminStyles.headerTitle}>Kelola Manager</Text> 
+            </View>
+          </ImageBackground>
+        </View>
 
-      <ScrollView style={styles.content}>
-        <View style={styles.form}>
-          <Text style={styles.label}>Nama Lengkap *</Text>
-          <TextInput
-            style={styles.input}
-            value={name}
-            onChangeText={setName}
-            placeholder="Masukkan nama lengkap manager"
-            placeholderTextColor="#999"
-            editable={!isLoading}
-          />
+        <View style={AdminStyles.contentPadding}>
+          
+          {/* Manager Users Header (dengan jumlah data) */}
+          <View style={localStyles.managerUsersHeader}>
+            <Text style={localStyles.managerUsersText}>Manager Users</Text>
+          </View>
 
-          <Text style={styles.label}>Email *</Text>
-          <TextInput
-            style={styles.input}
-            value={email}
-            onChangeText={setEmail}
-            placeholder="nama.manager@ugn.ac.id"
-            placeholderTextColor="#999"
-            keyboardType="email-address"
-            autoCapitalize="none"
-            editable={!isLoading}
-          />
-          <Text style={styles.hint}>
-            Email harus mengandung "manager" (contoh: john.manager@ugn.ac.id)
-          </Text>
-
-          <Text style={styles.label}>No. Telepon (Opsional)</Text>
-          <TextInput
-            style={styles.input}
-            value={phone}
-            onChangeText={setPhone}
-            placeholder="08123456789"
-            placeholderTextColor="#999"
-            keyboardType="phone-pad"
-            editable={!isLoading}
-          />
-
-          <Text style={styles.label}>Password *</Text>
-          <View style={styles.passwordContainer}>
-            <TextInput
-              style={[styles.input, { flex: 1 }]}
-              value={password}
-              onChangeText={setPassword}
-              placeholder="Min. 8 karakter, huruf besar, kecil, angka"
-              placeholderTextColor="#999"
-              secureTextEntry={!showPassword}
-              editable={!isLoading}
+          {/* Tombol Tambah Manajer (Arahkan ke layar CRUD) */}
+          <TouchableOpacity 
+            style={[AdminStyles.cardBase, localStyles.addButton]} 
+            onPress={handleAddNewManager}
+          >
+            <Image 
+                source={require('../../assets/icons/gridicons_add.png')}
+                style={localStyles.addIcon}
+                resizeMode="contain"
             />
-            <TouchableOpacity
-              onPress={() => setShowPassword(!showPassword)}
-              style={styles.eyeButton}
-              disabled={isLoading}
-            >
-              <Text style={styles.eyeIcon}>{showPassword ? '👁️' : '🙈'}</Text>
-            </TouchableOpacity>
-          </View>
-
-          <TouchableOpacity
-            onPress={generatePassword}
-            style={styles.generateButton}
-            disabled={isLoading}
-          >
-            <Text style={styles.generateButtonText}>🔄 Generate Password Acak</Text>
+            <Text style={localStyles.addText}>Add new manager</Text>
           </TouchableOpacity>
+          
+          {/* Daftar Manajer Dinamis */}
+          {isLoading ? (
+            <ActivityIndicator size="large" color="#DABC4E" style={{ marginTop: 30 }} />
+          ) : managers.length === 0 ? (
+            <Text style={localStyles.noDataText}>Tidak ada data Manager ditemukan.</Text>
+          ) : (
+            managers.map((manager) => (
+              <ManagerCard
+                key={manager.id_user}
+                manager={manager}
+                onPress={handleViewManager}
+              />
+            ))
+          )}
+          
+          {/* Spacer untuk Bottom Nav Fixed */}
+          <View style={AdminStyles.navSpacer} />
 
-          <View style={styles.infoBox}>
-            <Text style={styles.infoTitle}>ℹ️ Informasi Penting:</Text>
-            <Text style={styles.infoText}>
-              • Manager hanya dapat login dengan akun yang dibuat oleh admin{'\n'}
-              • Simpan kredensial dengan aman dan berikan kepada manager{'\n'}
-              • Manager tidak dapat melakukan registrasi sendiri{'\n'}
-              • Password dapat diubah oleh manager setelah login pertama
-            </Text>
-          </View>
-
-          <TouchableOpacity
-            style={[styles.submitButton, isLoading && styles.buttonDisabled]}
-            onPress={handleAddManager}
-            disabled={isLoading}
-          >
-            {isLoading ? (
-              <ActivityIndicator color="#FFFFFF" />
-            ) : (
-              <Text style={styles.submitButtonText}>Tambah Manager</Text>
-            )}
-          </TouchableOpacity>
         </View>
       </ScrollView>
+
+      {/* Background Logo */}
+      <Image
+        source={require('../../assets/images/logo-ugn.png')}
+        style={AdminStyles.backgroundLogo}
+        resizeMode="contain"
+      />
+
+      {/* Bottom Navigation (Fixed) */}
+      <View style={AdminStyles.bottomNav}>
+        <TouchableOpacity style={AdminStyles.navItem} onPress={() => navigation.navigate('AdminDashboard')}>
+          <Image
+            source={require('../../assets/icons/material-symbols_home-rounded.png')}
+            style={AdminStyles.navIcon}
+            resizeMode="contain"
+          />
+        </TouchableOpacity>
+
+        <TouchableOpacity style={AdminStyles.navItem}
+        onPress={() => navigation.navigate('StatistikPendaftaran')}>
+          <Image
+            source={require('../../assets/icons/proicons_save-pencil.png')}
+            style={AdminStyles.navIcon}
+            resizeMode="contain"
+          />
+        </TouchableOpacity>
+
+        {/* Item Aktif: Kelola Manager */}
+        <TouchableOpacity style={AdminStyles.navItem}>
+          <View style={AdminStyles.navItemActive}>
+            <Image
+              source={require('../../assets/icons/f7_person-3-fill.png')}
+              style={AdminStyles.navIcon}
+              resizeMode="contain"
+            />
+            <Text style={AdminStyles.navTextActive}>Manager</Text>
+          </View>
+        </TouchableOpacity>
+      </View>
+
     </SafeAreaView>
   );
 };
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#F5F5F5',
+// Style Lokal
+const localStyles = StyleSheet.create({
+  scrollContent: {
+    paddingBottom: 20,
   },
-  header: {
-    backgroundColor: '#015023',
-    padding: 16,
+  
+  // --- Manager Users Label ---
+  managerUsersHeader: {
+    alignSelf: 'flex-start',
+    backgroundColor: '#DABC4E',
+    borderRadius: 18,
+    paddingHorizontal: 12,
+    paddingVertical: 5,
+    marginBottom: 20,
+    borderWidth: 2,
+    borderColor: '#000000ff',
+    opacity: 0.75,
+  },
+  managerUsersText: {
+    fontSize: 14,
+    fontWeight: 'bold',
+    color: '#ffffffff',
+  },
+
+  // --- Tombol Tambah Manajer ---
+  addButton: {
     flexDirection: 'row',
+    justifyContent: 'flex-start', 
     alignItems: 'center',
+    gap: 12,
+    borderRadius: 18,
+    paddingHorizontal: 12, 
+    paddingVertical: 14, 
+    marginBottom: 20, // Tambah margin bawah
+    backgroundColor: '#DABC4E',
+    borderColor: '#015023',
   },
-  backButton: {
-    marginRight: 16,
+  addIcon: {
+    width: 24,
+    height: 24,
+    tintColor: '#000',
+    marginRight: 10,
   },
-  backButtonText: {
-    color: '#FFFFFF',
+  addText: {
     fontSize: 16,
-  },
-  headerTitle: {
-    color: '#FFFFFF',
-    fontSize: 20,
+    color: '#000',
     fontWeight: 'bold',
   },
-  content: {
-    flex: 1,
+
+  // --- Manager Card ---
+  managerCard: {
+    ...AdminStyles.cardBase,
+    flexDirection: 'row',
+    justifyContent: 'flex-start',
+    alignItems: 'center',
+    gap: 15,
+    borderRadius: 18,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    marginBottom: 10, // Tambah margin
   },
-  form: {
-    padding: 20,
+  managerIcon: {
+    width: 25,
+    height: 25,
+    tintColor: '#000',
   },
-  label: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#333',
-    marginBottom: 8,
-    marginTop: 16,
+  managerInfo: {
+    alignItems: 'flex-start',
   },
-  input: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 8,
-    padding: 12,
-    fontSize: 14,
-    borderWidth: 1,
-    borderColor: '#E0E0E0',
+  managerName: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#000',
   },
-  hint: {
+  managerRole: {
     fontSize: 12,
+    color: '#015023', 
+    marginTop: 2,
+  },
+  noDataText: {
+    fontSize: 16,
     color: '#666',
-    marginTop: 4,
-    fontStyle: 'italic',
-  },
-  passwordContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  eyeButton: {
-    position: 'absolute',
-    right: 12,
-    padding: 8,
-  },
-  eyeIcon: {
-    fontSize: 20,
-  },
-  generateButton: {
-    backgroundColor: '#F0F0F0',
-    padding: 12,
-    borderRadius: 8,
-    marginTop: 8,
-    alignItems: 'center',
-    borderWidth: 1,
-    borderColor: '#E0E0E0',
-  },
-  generateButtonText: {
-    color: '#015023',
-    fontSize: 14,
-    fontWeight: '600',
-  },
-  infoBox: {
-    backgroundColor: '#E8F5E9',
-    padding: 16,
-    borderRadius: 8,
-    marginTop: 24,
-    borderLeftWidth: 4,
-    borderLeftColor: '#4CAF50',
-  },
-  infoTitle: {
-    fontSize: 14,
-    fontWeight: 'bold',
-    color: '#2E7D32',
-    marginBottom: 8,
-  },
-  infoText: {
-    fontSize: 12,
-    color: '#2E7D32',
-    lineHeight: 20,
-  },
-  submitButton: {
-    backgroundColor: '#015023',
-    padding: 16,
-    borderRadius: 8,
-    alignItems: 'center',
-    marginTop: 24,
-    marginBottom: 40,
-  },
-  submitButtonText: {
-    color: '#FFFFFF',
-    fontSize: 16,
-    fontWeight: 'bold',
-  },
-  buttonDisabled: {
-    opacity: 0.6,
+    textAlign: 'center',
+    marginTop: 20,
   },
 });
 

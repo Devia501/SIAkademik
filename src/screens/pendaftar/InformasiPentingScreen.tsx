@@ -127,7 +127,6 @@ const styles = StyleSheet.create({
     lineHeight: 18,
     marginBottom: 10,
     textAlign: 'left',
-    fontStyle: 'italic',
   },
   numberText: {
     fontWeight: 'bold',

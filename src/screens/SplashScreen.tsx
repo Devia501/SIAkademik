@@ -1,15 +1,13 @@
 import React, { useEffect } from 'react';
 import { View, StyleSheet, Animated } from 'react-native';
-import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { AuthStackParamList } from '../navigation/AppNavigator';
 
-type SplashScreenNavigationProp = NativeStackNavigationProp<AuthStackParamList, 'Splash'>;
+// Hapus import yang berkaitan dengan Navigation
+// import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+// import { AuthStackParamList } from '../navigation/AppNavigator';
 
-interface Props {
-  navigation: SplashScreenNavigationProp;
-}
+// Hapus type dan interface Props karena navigation tidak lagi diterima
 
-const SplashScreen: React.FC<Props> = ({ navigation }) => {
+const SplashScreen: React.FC = () => { 
   const fadeAnim = new Animated.Value(0);
   const scaleAnim = new Animated.Value(0.3);
 
@@ -18,7 +16,7 @@ const SplashScreen: React.FC<Props> = ({ navigation }) => {
     Animated.parallel([
       Animated.timing(fadeAnim, {
         toValue: 1,
-        duration: 1000,
+        duration: 500, // Waktu animasi
         useNativeDriver: true,
       }),
       Animated.spring(scaleAnim, {
@@ -28,21 +26,8 @@ const SplashScreen: React.FC<Props> = ({ navigation }) => {
         useNativeDriver: true,
       }),
     ]).start();
-
-    // Tunggu 2 detik, lalu fade out sebelum navigasi
-    const timer = setTimeout(() => {
-      Animated.timing(fadeAnim, {
-        toValue: 0,
-        duration: 700, // Durasi fade out
-        useNativeDriver: true,
-      }).start(() => {
-        // Navigasi setelah animasi fade out selesai
-        navigation.replace('Landing');
-      });
-    }, 2000);
-
-    return () => clearTimeout(timer);
-  }, [navigation]);
+    
+  }, []); // Dependensi kosong
 
   return (
     <View style={styles.container}>

@@ -1,55 +1,123 @@
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
+// ============================================
+// 🔧 KONFIGURASI API URL
+// ============================================
 // PILIH SALAH SATU sesuai device:
-// Android Emulator
-const API_URL = 'http://10.160.84.208/api';
 
-// iOS Simulator
-// const API_URL = 'http://localhost:8000/api';
+// Device Fisik (ganti dengan IP komputer Anda)
+const API_URL = 'http://10.160.84.208:8000/api'; // <--- PASTIKAN IP INI BENAR!
 
-// Device Fisik (ganti dengan IP komputer)
-// const API_URL = 'http://192.168.x.x:8000/api';
+console.log('🌐 API URL:', API_URL);
 
+// ============================================
+// 🔧 AXIOS INSTANCE
+// ============================================
 const api = axios.create({
   baseURL: API_URL,
   headers: {
     'Content-Type': 'application/json',
     'Accept': 'application/json',
   },
-  timeout: 10000,
+  timeout: 15000, // 15 detik timeout
 });
 
-// Request Interceptor - Tambahkan token ke setiap request
+// ============================================
+// 📤 REQUEST INTERCEPTOR (FINAL FIX)
+// ============================================
 api.interceptors.request.use(
   async (config) => {
     try {
       const token = await AsyncStorage.getItem('token');
+      
+      // 🎯 PERBAIKAN: Gunakan template literal dan fallback ke string kosong untuk fullUrl
+      const fullUrl = `${api.defaults.baseURL || ''}${config.url || ''}`; 
+
       if (token) {
         config.headers.Authorization = `Bearer ${token}`;
+        // 🎯 PERBAIKAN LOG: Menggunakan optional chaining (?.) untuk menghindari error
+        const role = config.url?.startsWith('/registration') ? 'Pendaftar' : 'Admin/Lain';
+        console.log(`🔒 Token Found. Role: ${role}`);
+      } else {
+        console.log('🔓 No Token Found. This may cause 401/404 on protected routes.');
       }
+      
+      // Log request untuk debugging 
+      console.log(`📤 ${config.method?.toUpperCase()} ${config.url} -> ${fullUrl}`);
+      if (config.data) {
+        // Log data request (potong jika terlalu panjang)
+        console.log('   Data:', JSON.stringify(config.data).substring(0, 100));
+      }
+      
     } catch (error) {
-      console.error('Error getting token:', error);
+      console.error('❌ Error getting token:', error);
     }
     return config;
   },
   (error) => {
+    console.error('❌ Request error:', error);
     return Promise.reject(error);
   }
 );
 
-// Response Interceptor - Handle errors globally
+// ============================================
+// 📥 RESPONSE INTERCEPTOR
+// ============================================
 api.interceptors.response.use(
-  (response) => response,
+  (response) => {
+    // Log response sukses
+    console.log(`✅ ${response.config.method?.toUpperCase()} ${response.config.url} - ${response.status}`);
+    return response;
+  },
   async (error) => {
-    if (error.response?.status === 401) {
-      // Token expired atau invalid, logout user
+    const originalRequest = error.config;
+
+    // Handle network error (no response)
+    if (!error.response) {
+      console.error('❌ Network Error: Tidak dapat terhubung ke server');
+      return Promise.reject({
+        message: 'Tidak dapat terhubung ke server. Periksa koneksi internet Anda.',
+        isNetworkError: true,
+      });
+    }
+
+    const status = error.response?.status;
+    console.error(`❌ ${originalRequest?.method?.toUpperCase()} ${originalRequest?.url} - ${status}`);
+
+    // Handle 401 Unauthorized (token expired/invalid)
+    if (status === 401 && !originalRequest._retry) {
+      originalRequest._retry = true;
+      
+      console.log('🔒 Token expired or invalid, logging out...');
+      
+      // Clear auth data
       await AsyncStorage.removeItem('token');
       await AsyncStorage.removeItem('user');
-      // Bisa trigger navigation ke login screen di sini jika perlu
+      
+      // Di AuthContext, Anda dapat menambahkan logika untuk mengarahkan ke halaman Login
     }
-    
-    console.error('API Error:', error.response?.data || error.message);
+
+    // Handle 403 Forbidden (insufficient permissions)
+    if (status === 403) {
+      console.error('🚫 Forbidden: Insufficient permissions');
+    }
+
+    // Handle 422 Validation Error
+    if (status === 422) {
+      console.error('⚠️ Validation Error:', error.response.data?.errors);
+    }
+
+    // Handle 429 Too Many Requests
+    if (status === 429) {
+      console.error('⏱️ Too many requests. Please try again later.');
+    }
+
+    // Handle 500 Server Error
+    if (status === 500) {
+      console.error('💥 Server Error:', error.response.data?.message);
+    }
+
     return Promise.reject(error);
   }
 );

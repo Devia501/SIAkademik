@@ -30,7 +30,7 @@ const StatusPendaftaranAwalScreen = () => {
   return (
     <SafeAreaView style={PendaftarStyles.container} edges={['top']}>
       <ScrollView showsVerticalScrollIndicator={false}>
-        <View style={PendaftarStyles.headerContainer}>
+        <View style={[PendaftarStyles.headerContainer, styles.headertitle]}>
           <ImageBackground
             source={require('../../assets/images/Rectangle 52.png')}
             style={PendaftarStyles.waveBackground}
@@ -129,8 +129,11 @@ const StatusPendaftaranAwalScreen = () => {
 };
 
 const styles = StyleSheet.create({
+  headertitle:{
+    height: 70,
+  },
   nav: {
-    bottom: 20.5,
+    bottom: 0,
   },
   content: {
     paddingHorizontal: 20,

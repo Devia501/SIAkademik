@@ -1,10 +1,10 @@
 import React, { useEffect } from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { ActivityIndicator, View, StyleSheet } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
-import { useAuth } from '../contexts/AuthContext';
+import { useNavigation } from '@react-navigation/native'; 
+import { useAuth } from '../contexts/AuthContext'; 
 
 // Screens
+import SplashScreen from '../screens/SplashScreen';
 import LandingScreen from '../screens/auth/LandingScreen';
 import LoginScreen from '../screens/auth/LoginScreen';
 import RegisterScreen from '../screens/auth/RegisterScreen';
@@ -12,15 +12,17 @@ import RegisterScreen from '../screens/auth/RegisterScreen';
 // Navigators
 import PendaftarNavigator from './PendaftarNavigator';
 import ManagerNavigator from './ManagerNavigator';
-import AdminNavigator from './AdminNavigator';
+import AdminNavigator from '../navigation/AdminNavigator';
 
 const Stack = createNativeStackNavigator();
 
 const AppNavigator = () => {
   const { user, isAuthenticated, isLoading } = useAuth();
-  const navigation = useNavigation<any>();
+  // useNavigation tetap ada, meskipun tidak digunakan untuk reset
+  const navigation = useNavigation<any>(); 
 
-  // 🔁 Redirect otomatis saat user berubah
+  // 🛑 BLOK useEffect UNTUK navigation.reset() DIHAPUS TOTAL 🛑
+  /*
   useEffect(() => {
     if (!isLoading && user) {
       if (user.role === 'admin') {
@@ -41,47 +43,41 @@ const AppNavigator = () => {
       }
     }
   }, [user, isLoading]);
+  */
 
-  if (isLoading) {
-    return (
-      <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#015023" />
-      </View>
-    );
+  // Tambahkan fungsi untuk merender Stack berdasarkan Role
+  const RoleStack = () => {
+    if (user?.role === 'admin') {
+      return <Stack.Screen name="AdminApp" component={AdminNavigator} />;
+    }
+    if (user?.role === 'manager') {
+      return <Stack.Screen name="ManagerApp" component={ManagerNavigator} />;
+    }
+    if (user?.role === 'pendaftar') {
+      return <Stack.Screen name="PendaftarApp" component={PendaftarNavigator} />;
+    }
+    // Fallback yang aman jika user login tapi role-nya tidak terdeteksi
+    return <Stack.Screen name="PendaftarApp" component={PendaftarNavigator} />;
   }
 
   return (
     <Stack.Navigator screenOptions={{ headerShown: false }}>
-      {!isAuthenticated ? (
+      {isLoading ? (
+        // 📌 KONDISI 1: Loading
+        <Stack.Screen name="Splash" component={SplashScreen} />
+      ) : !isAuthenticated ? (
+        // 📌 KONDISI 2: Belum Login
         <>
           <Stack.Screen name="Landing" component={LandingScreen} />
           <Stack.Screen name="Login" component={LoginScreen} />
           <Stack.Screen name="Register" component={RegisterScreen} />
         </>
       ) : (
-        <>
-          {user?.role === 'admin' && (
-            <Stack.Screen name="AdminApp" component={AdminNavigator} />
-          )}
-          {user?.role === 'manager' && (
-            <Stack.Screen name="ManagerApp" component={ManagerNavigator} />
-          )}
-          {user?.role === 'pendaftar' && (
-            <Stack.Screen name="PendaftarApp" component={PendaftarNavigator} />
-          )}
-        </>
+        // 📌 KONDISI 3: Sudah Login (Rendering Bersyarat Murni)
+        <>{RoleStack()}</> // Pastikan SELALU merender satu komponen Stack.Screen
       )}
     </Stack.Navigator>
   );
 };
-
-const styles = StyleSheet.create({
-  loadingContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#FFFFFF',
-  },
-});
 
 export default AppNavigator;

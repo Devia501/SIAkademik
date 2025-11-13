@@ -8,21 +8,23 @@ import {
   Image,
   StyleSheet,
   Dimensions,
-  Alert, // Tambahkan Alert untuk konfirmasi logout
+  Alert, 
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { ManagerStackParamList } from '../../navigation/ManagerNavigator';
 import { useAuth } from '../../contexts/AuthContext'; 
-
+// Import styles dari ManagerStyles.ts
+import { ManagerStyles, Colors } from '../../styles/ManagerStyles'; 
+import LinearGradient from 'react-native-linear-gradient';
 const { width } = Dimensions.get('window');
 
 type DashboardManagerNavigationProp = NativeStackNavigationProp<ManagerStackParamList, 'ManagerDashboard'>;
 
 const DashboardManager = () => {
   const navigation = useNavigation<DashboardManagerNavigationProp>();
-  const { logout, user } = useAuth(); // Ambil fungsi logout dan user
+  const { logout, user } = useAuth(); 
 
   const handleLogout = () => {
     Alert.alert(
@@ -35,26 +37,36 @@ const DashboardManager = () => {
     );
   };
 
+  const handleKelolaPendaftaran = () => {
+    // Navigasi ke Kelola Pendaftaran (Pastikan nama route-nya benar)
+    navigation.navigate('KelolaPendaftaran'); 
+  };
+  
+  const handleSystemSettings = () => {
+    // Implementasikan navigasi ke System Settings
+    console.log('Navigate to System Settings');
+  };
+
   return (
-    <SafeAreaView style={styles.container} edges={['top']}>
+    <SafeAreaView style={ManagerStyles.container} edges={['top']}>
       <ScrollView showsVerticalScrollIndicator={false}>
-        {/* Header */}
-        <View style={styles.headerContainer}>
+        {/* Header - Menggunakan ManagerStyles */}
+        <View style={ManagerStyles.headerContainer}>
           <ImageBackground
-            source={require('../../assets/images/Rectangle 48.png')}
-            style={styles.waveBackground}
+            source={require('../../assets/images/App Bar - Bottom.png')}
+            style={ManagerStyles.waveBackground}
             resizeMode="cover"
           >
-            <View style={styles.headerContent}>
-              <Text style={styles.headerTitle}>Manager Dashboard</Text>
-              {/* TOMBOL LOGOUT ICON di KANAN ATAS */}
+            <View style={ManagerStyles.headerContent}>
+              <Text style={ManagerStyles.headerTitle}>Manager Dashboard</Text>
+              {/* TOMBOL LOGOUT ICON di KANAN ATAS - Menggunakan ManagerStyles */}
               <TouchableOpacity
-                style={styles.logoutIconContainer}
+                style={ManagerStyles.headerIconContainer} // Menggunakan style umum
                 onPress={handleLogout}
               >
                 <Image
                   source={require('../../assets/icons/mingcute_exit-line.png')}
-                  style={styles.logoutIcon}
+                  style={ManagerStyles.headerIcon} // Menggunakan style umum
                   resizeMode="contain"
                 />
               </TouchableOpacity>
@@ -63,8 +75,8 @@ const DashboardManager = () => {
           </ImageBackground>
         </View>
 
-        {/* Content */}
-        <View style={styles.content}>
+        {/* Content - Menggunakan ManagerStyles */}
+        <View style={ManagerStyles.content}>
           {/* Today's Summary */}
           <View style={styles.summaryHeader}>
             <Text style={styles.summaryTitle}>Today's Summary</Text>
@@ -73,7 +85,6 @@ const DashboardManager = () => {
             </View>
           </View>
 
-          {/* Menggunakan data user?.name */}
           <Text style={styles.greetingText}>Selamat datang, {user?.name || 'manager system'}!</Text>
 
           {/* Total Pendaftar Card */}
@@ -101,100 +112,74 @@ const DashboardManager = () => {
           </View>
 
           {/* Action Buttons */}
-          <TouchableOpacity style={styles.actionButton}>
-            <Text style={styles.actionButtonText}>Kelola Pendaftaran</Text>
+          <TouchableOpacity 
+            onPress={handleKelolaPendaftaran} // Tambahkan handler navigasi
+          >
+            <LinearGradient
+                colors={['#DABC4E', '#EFE3B0']}
+                start={{ x: 0, y: 0.5 }}
+                end={{ x: 0.5, y: 1 }}
+                style={styles.actionButton}
+              >
+                <Text style={styles.actionButtonText}>Kelola Pendaftaran</Text>
+              </LinearGradient>
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.actionButtonSecondary}>
+          <TouchableOpacity 
+            style={styles.actionButtonSecondary}
+            onPress={() => navigation.navigate('SystemSettings')}
+          >
             <Text style={styles.actionButtonText}>System Settings</Text>
           </TouchableOpacity>
         </View>
 
-        {/* Bottom Navigation */}
-        <View style={styles.bottomNav}>
-          <TouchableOpacity style={styles.navItem}>
-            <View style={styles.navItemActive}>
-              <Image
-                source={require('../../assets/icons/material-symbols_home-rounded.png')}
-                style={styles.navIcon}
-                resizeMode="contain"
-              />
-              <Text style={styles.navTextActive}>Home</Text>
-            </View>
-          </TouchableOpacity>
+        {/* Padding bawah agar konten tidak tertutup bottom nav */}
+        <View style={{ height: 120 }} />
 
-          <TouchableOpacity style={styles.navItem}>
-            <Image
-              source={require('../../assets/icons/clarity_form-line.png')}
-              style={styles.navIcon}
-              resizeMode="contain"
-            />
-          </TouchableOpacity>
+        {/* Background Logo - Menggunakan ManagerStyles */}
+        <Image
+            source={require('../../assets/images/logo-ugn.png')}
+            style={ManagerStyles.backgroundLogo}
+            resizeMode="contain"
+        />
 
-          <TouchableOpacity style={styles.navItem}>
-            <Image
-              source={require('../../assets/icons/ix_user-profile-filled.png')}
-              style={styles.navIcon}
-              resizeMode="contain"
-            />
-          </TouchableOpacity>
-        </View>
       </ScrollView>
 
-      {/* Background Logo */}
-      <Image
-        source={require('../../assets/images/logo-ugn.png')}
-        style={styles.backgroundLogo}
-        resizeMode="contain"
-      />
+      {/* Bottom Navigation - Menggunakan ManagerStyles */}
+      <View style={ManagerStyles.bottomNav}>
+        <TouchableOpacity style={ManagerStyles.navItem}>
+          <View style={ManagerStyles.navItemActive}>
+            <Image
+              source={require('../../assets/icons/material-symbols_home-rounded.png')}
+              style={ManagerStyles.navIcon}
+              resizeMode="contain"
+            />
+            <Text style={ManagerStyles.navTextActive}>Home</Text>
+          </View>
+        </TouchableOpacity>
+
+        <TouchableOpacity style={ManagerStyles.navItem} onPress={() => navigation.navigate('KelolaPendaftaran')}>
+          <Image
+            source={require('../../assets/icons/proicons_save-pencil.png')}
+            style={ManagerStyles.navIcon}
+            resizeMode="contain"
+          />
+        </TouchableOpacity>
+
+        <TouchableOpacity style={ManagerStyles.navItem} onPress={() => navigation.navigate('SystemSettings')}>
+          <Image
+            source={require('../../assets/icons/material-symbols_settings-rounded.png')}
+            style={ManagerStyles.navIcon}
+            resizeMode="contain"
+          />
+        </TouchableOpacity>
+      </View>
     </SafeAreaView>
   );
 };
 
+// Style spesifik untuk DashboardManager
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#015023',
-  },
-  headerContainer: {
-    height: 60,
-  },
-  waveBackground: {
-    width: '100%',
-    height: '100%',
-  },
-  headerContent: {
-    // Diubah untuk menampung tombol logout di kanan
-    flexDirection: 'row',
-    justifyContent: 'center', // Tetap fokus di tengah untuk judul
-    alignItems: 'center',
-    paddingTop: 15,
-    paddingHorizontal: 20, // Tambahkan padding horizontal untuk ruang
-    position: 'relative', // Atur agar elemen absolute (logout) bisa relatif terhadap ini
-  },
-  headerTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: '#000000ff',
-    // Gunakan position absolute atau margin horizontal negatif untuk menaruh di tengah mutlak 
-    // agar tidak terpengaruh oleh tombol logout, tetapi kita biarkan margin karena lebih aman
-  },
-  // --- Gaya baru untuk tombol logout ---
-  logoutIconContainer: {
-    position: 'absolute',
-    right: 20, // Geser ke kanan
-    top: 15, // Sejajarkan dengan paddingTop
-    padding: 5,
-  },
-  logoutIcon: {
-    width: 24,
-    height: 24,
-  },
-  // ------------------------------------
-  content: {
-    paddingHorizontal: 20,
-    marginTop: 20,
-  },
   summaryHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -204,10 +189,10 @@ const styles = StyleSheet.create({
   summaryTitle: {
     fontSize: 16,
     fontWeight: 'bold',
-    color: '#FFF',
+    color: Colors.textLight,
   },
   notificationBadge: {
-    backgroundColor: '#FFF',
+    backgroundColor: Colors.textLight,
     borderRadius: 12,
     width: 24,
     height: 24,
@@ -217,31 +202,32 @@ const styles = StyleSheet.create({
   notificationText: {
     fontSize: 12,
     fontWeight: 'bold',
-    color: '#015023',
+    color: Colors.primary,
   },
   greetingText: {
     fontSize: 13,
-    color: '#FFF',
+    color: Colors.textLight,
     marginBottom: 20,
   },
   totalCard: {
-    backgroundColor: '#F5E6D3',
+    backgroundColor: Colors.backgroundLight,
     borderRadius: 20,
     paddingVertical: 20,
-    paddingHorizontal: 30,
     alignItems: 'center',
     marginBottom: 16,
     borderWidth: 2,
-    borderColor: '#DABC4E',
+    borderColor: Colors.secondary,
+    width: '85%',
+    left: 25,
   },
   totalNumber: {
     fontSize: 40,
     fontWeight: 'bold',
-    color: '#000',
+    color: Colors.textDark,
   },
   totalLabel: {
     fontSize: 14,
-    color: '#000',
+    color: Colors.textDark,
     marginTop: 4,
   },
   statsRow: {
@@ -252,117 +238,70 @@ const styles = StyleSheet.create({
   },
   statCard: {
     flex: 1,
-    backgroundColor: '#DABC4E',
+    backgroundColor: Colors.secondary,
     borderRadius: 16,
-    paddingVertical: 24,
+    paddingVertical: 22,
     alignItems: 'center',
     borderWidth: 2,
-    borderColor: '#000',
+    borderColor: Colors.textDark,
   },
   statNumber: {
     fontSize: 32,
     fontWeight: 'bold',
-    color: '#000',
+    color: Colors.textDark,
   },
   statLabel: {
     fontSize: 12,
-    color: '#000',
+    color: Colors.textDark,
     marginTop: 4,
   },
   rejectCard: {
-    backgroundColor: '#F5E6D3',
+    backgroundColor: Colors.backgroundLight,
     borderRadius: 20,
-    paddingVertical: 16,
+    paddingVertical: 12,
     alignItems: 'center',
     marginBottom: 20,
     borderWidth: 2,
-    borderColor: '#DABC4E',
+    borderColor: Colors.secondary,
+    width: '85%',
+    left: 25,
   },
   rejectNumber: {
     fontSize: 32,
     fontWeight: 'bold',
-    color: '#000',
+    color: Colors.textDark,
   },
   rejectLabel: {
     fontSize: 14,
-    color: '#DC2626',
+    color: Colors.statusRejected,
     marginTop: 4,
   },
   actionButton: {
-    backgroundColor: '#DABC4E',
-    borderRadius: 25,
-    paddingVertical: 14,
+    backgroundColor: Colors.secondary,
+    borderRadius: 15,
+    paddingVertical: 12,
     alignItems: 'center',
     marginBottom: 12,
     borderWidth: 2,
-    borderColor: '#000',
+    borderColor: '#e6c85fff',
+    width: '85%',
+    left: 25,
   },
   actionButtonSecondary: {
-    backgroundColor: '#F5E6D3',
-    borderRadius: 25,
-    paddingVertical: 14,
+    backgroundColor: Colors.backgroundLight,
+    borderRadius: 15,
+    paddingVertical: 12,
     alignItems: 'center',
     marginBottom: 100,
     borderWidth: 2,
-    borderColor: '#DABC4E',
+    borderColor: Colors.secondary,
+    width: '85%',
+    left: 25,
   },
   actionButtonText: {
     fontSize: 15,
     fontWeight: 'bold',
-    color: '#000',
-  },
-  bottomNav: {
-    position: 'absolute',
-    bottom: 20,
-    left: 20,
-    right: 20,
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    alignItems: 'center',
-    backgroundColor: '#FFF',
-    borderRadius: 25,
-    paddingVertical: 6,
-    paddingHorizontal: 16,
-    borderWidth: 4,
-    borderColor: '#DABC4E',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.2,
-    shadowRadius: 8,
-    elevation: 8,
-  },
-  navItem: {
-    alignItems: 'center',
-    flex: 1,
-  },
-  navItemActive: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#F5E6D3',
-    borderRadius: 20,
-    paddingHorizontal: 14,
-    paddingVertical: 7,
-    borderWidth: 1,
-    borderColor: '#000',
-    gap: 4,
-  },
-  navIcon: {
-    width: 24,
-    height: 24,
-  },
-  navTextActive: {
-    fontSize: 12,
-    fontWeight: 'bold',
-    color: '#000',
-  },
-  backgroundLogo: {
-    position: 'absolute',
-    bottom: -350,
-    alignSelf: 'center',
-    width: 950,
-    height: 950,
-    opacity: 0.15,
-    zIndex: -1,
+    color: Colors.textDark,
   },
 });
 

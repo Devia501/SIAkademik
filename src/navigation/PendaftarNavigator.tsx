@@ -12,6 +12,12 @@ import DataPrestasiScreen from '../screens/pendaftar/DataPrestasiScreen';
 import DataOrangTuaScreen from '../screens/pendaftar/DataOrangTuaScreen';
 import RincianBiayaPendaftaranScreen from '../screens/pendaftar/RincianBiayaPendaftaranScreen';
 import VerifikasiPembayaranScreen from '../screens/pendaftar/VerifikasiPembayaranScreen';
+import TungguKonfirmasi from '../screens/pendaftar/TungguKonfirmasi';
+import VerifikasiPembayaranBerhasil from '../screens/pendaftar/VerifikasiPembayaranBerhasil';
+import StatusPendaftaranProses from '../screens/pendaftar/StatusPendaftaranProses';
+import StatusPendaftaranDone from '../screens/pendaftar/StatusPendaftaranDone';
+import HasilDiterima from '../screens/pendaftar/HasilDiterima';
+import HasilDitolak from '../screens/pendaftar/HasilDitolak';
 
 export type PendaftarStackParamList = {
   PendaftarDashboard: undefined;
@@ -26,6 +32,12 @@ export type PendaftarStackParamList = {
   DataOrangTua: undefined;
   RincianBiayaPendaftaran: undefined;
   VerifikasiPembayaran: undefined;
+  TungguKonfirmasi: undefined;
+  VerifikasiPembayaranBerhasil: undefined;
+  StatusPendaftaranProses: undefined;
+  StatusPendaftaranDone: undefined;
+  HasilDiterima: undefined;
+  HasilDitolak: undefined;
 };
 
 const Stack = createNativeStackNavigator<PendaftarStackParamList>();
@@ -53,6 +65,12 @@ const PendaftarNavigator: React.FC = () => {
       <Stack.Screen name="DataOrangTua" component={DataOrangTuaScreen} />
       <Stack.Screen name="RincianBiayaPendaftaran" component={RincianBiayaPendaftaranScreen} />
       <Stack.Screen name="VerifikasiPembayaran" component={VerifikasiPembayaranScreen} />
+      <Stack.Screen name="TungguKonfirmasi" component={TungguKonfirmasi} />
+      <Stack.Screen name="VerifikasiPembayaranBerhasil" component={VerifikasiPembayaranBerhasil} />
+      <Stack.Screen name="StatusPendaftaranProses" component={StatusPendaftaranProses} />
+      <Stack.Screen name="StatusPendaftaranDone" component={StatusPendaftaranDone} />
+      <Stack.Screen name="HasilDiterima" component={HasilDiterima} />
+      <Stack.Screen name="HasilDitolak" component={HasilDitolak} />
     </Stack.Navigator>
   );
 };

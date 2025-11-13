@@ -1,4 +1,3 @@
-// LoginScreen.tsx
 import React, { useState, useRef } from 'react';
 import {
   View,
@@ -12,6 +11,8 @@ import {
   Alert,
   Modal,
   ActivityIndicator,
+  KeyboardAvoidingView,
+  ScrollView,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { WebView } from 'react-native-webview';
@@ -44,8 +45,8 @@ const LoginScreen = () => {
   const webviewRef = useRef<WebViewType | null>(null);
   const { login } = useAuth();
 
-  // ✅ Perbaikan fungsi handleLogin (jadi async)
   const handleLogin = async () => {
+    // Validasi input
     if (!email.trim() || !password.trim()) {
       Alert.alert('Peringatan', 'Email dan Password tidak boleh kosong!');
       return;
@@ -65,10 +66,15 @@ const LoginScreen = () => {
 
     try {
       await login(email, password, recaptchaToken || '');
-      Alert.alert('Sukses', 'Login berhasil!');
       // Navigasi otomatis dilakukan oleh AppNavigator melalui AuthContext
+      console.log('✅ Login successful, redirecting...');
     } catch (error: any) {
+      console.error('Login error:', error);
       Alert.alert('Login Gagal', error.message || 'Terjadi kesalahan saat login.');
+      
+      // Reset captcha jika login gagal
+      setIsChecked(false);
+      setRecaptchaToken(null);
     } finally {
       setIsLoading(false);
     }
@@ -138,9 +144,15 @@ const LoginScreen = () => {
         setShowCaptchaModal(false);
         Alert.alert('Captcha', 'Verifikasi reCAPTCHA berhasil.');
         console.log('reCAPTCHA token:', data.token);
+        
+        // 👇 PERBAIKAN: Reset Captcha di webview setelah sukses
+        webviewRef.current?.injectJavaScript('if (typeof grecaptcha !== "undefined") { grecaptcha.reset(); } true;'); 
+
       } else if (data.success === false) {
         Alert.alert('Error', data.error || 'Verifikasi reCAPTCHA gagal.');
         setShowCaptchaModal(false);
+        // 👇 PERBAIKAN: Reset Captcha di webview setelah error
+        webviewRef.current?.injectJavaScript('if (typeof grecaptcha !== "undefined") { grecaptcha.reset(); } true;'); 
       }
     } catch (e) {
       console.warn('reCAPTCHA onMessage parse error', e);
@@ -159,99 +171,121 @@ const LoginScreen = () => {
         resizeMode="contain"
       />
 
-      {/* Header */}
-      <View style={AuthStyles.header}>
-        <Image
-          source={require('../../assets/images/logo-ugn2.png')}
-          style={AuthStyles.logo}
-          resizeMode="contain"
-        />
-        <Text style={AuthStyles.headerText}>UNIVERSITAS GLOBAL NUSANTARA</Text>
-      </View>
-
-      {/* Form */}
-      <View style={AuthStyles.formContainer}>
-        <Text style={AuthStyles.title}>Login</Text>
-
-        <Text style={AuthStyles.label}>Email</Text>
-        <TextInput
-          style={AuthStyles.input}
-          value={email}
-          onChangeText={setEmail}
-          keyboardType="email-address"
-          autoCapitalize="none"
-          placeholder="nama@email.com"
-          placeholderTextColor="#999"
-        />
-
-        <Text style={AuthStyles.label}>Password</Text>
-        <View style={styles.passwordContainer}>
-          <TextInput
-            style={[AuthStyles.input, styles.inputDark, { flex: 1 }]}
-            value={password}
-            onChangeText={setPassword}
-            secureTextEntry={!showPassword}
-            placeholder="Masukkan password"
-            placeholderTextColor="#999"
-          />
-          <TouchableOpacity
-            onPress={() => setShowPassword(!showPassword)}
-            style={styles.eyeButton}
-            activeOpacity={0.7}
-          >
+      <KeyboardAvoidingView
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        style={{ flex: 1 }}
+      >
+        <ScrollView 
+          contentContainerStyle={{ flexGrow: 1 }}
+          keyboardShouldPersistTaps="handled"
+        >
+          {/* Header */}
+          <View style={AuthStyles.header}>
             <Image
-              source={
-                showPassword
-                  ? require('../../assets/icons/fi-sr-eye.png')
-                  : require('../../assets/icons/fi-sr-eye-crossed.png')
-              }
-              style={styles.eyeIcon}
+              source={require('../../assets/images/logo-ugn2.png')}
+              style={AuthStyles.logo}
               resizeMode="contain"
             />
-          </TouchableOpacity>
-        </View>
-      </View>
-
-      {/* CAPTCHA */}
-      <View style={styles.captchaSection}>
-        <Text style={AuthStyles.label}>Captcha</Text>
-        <TouchableOpacity
-          style={styles.captchaContainer}
-          onPress={() => setShowCaptchaModal(true)}
-          activeOpacity={0.8}
-        >
-          <View style={styles.checkbox}>
-            {isChecked && <Text style={styles.checkmark}>✓</Text>}
+            <Text style={AuthStyles.headerText}>UNIVERSITAS GLOBAL NUSANTARA</Text>
           </View>
-          <Text style={styles.captchaText}>
-            {isChecked ? "Verified – I'm not a robot" : "I'm not a robot"}
-          </Text>
-          <Image
-            source={require('../../assets/images/captcha.png')}
-            style={styles.captchaIcon}
-            resizeMode="contain"
-          />
-        </TouchableOpacity>
-      </View>
 
-      {/* Tombol Login */}
-      <View style={AuthStyles.buttonSection}>
-        <TouchableOpacity
-          style={[AuthStyles.primaryButton, isLoading && { opacity: 0.6 }]}
-          onPress={handleLogin}
-          disabled={isLoading}
-          activeOpacity={0.8}
-        >
-          <Text style={AuthStyles.primaryButtonText}>
-            {isLoading ? 'Memproses...' : 'Login'}
-          </Text>
-        </TouchableOpacity>
+          {/* Form */}
+          <View style={AuthStyles.formContainer}>
+            <Text style={AuthStyles.title}>Login</Text>
 
-        {/* Indikator loading */}
-        {isLoading && (
-          <ActivityIndicator size="large" color="#015023" style={{ marginTop: 10 }} />
-        )}
-      </View>
+            <Text style={AuthStyles.label}>Email</Text>
+            <TextInput
+              style={AuthStyles.input}
+              value={email}
+              onChangeText={setEmail}
+              keyboardType="email-address"
+              autoCapitalize="none"
+              placeholder="nama@email.com"
+              placeholderTextColor="#999"
+              editable={!isLoading}
+            />
+
+            <Text style={AuthStyles.label}>Password</Text>
+            <View style={styles.passwordContainer}>
+              <TextInput
+                style={[AuthStyles.input, styles.inputDark, { flex: 1 }]}
+                value={password}
+                onChangeText={setPassword}
+                secureTextEntry={!showPassword}
+                placeholder="Masukkan password"
+                placeholderTextColor="#999"
+                editable={!isLoading}
+              />
+              <TouchableOpacity
+                onPress={() => setShowPassword(!showPassword)}
+                style={styles.eyeButton}
+                activeOpacity={0.7}
+                disabled={isLoading}
+              >
+                <Image
+                  source={
+                    showPassword
+                      ? require('../../assets/icons/fi-sr-eye.png')
+                      : require('../../assets/icons/fi-sr-eye-crossed.png')
+                  }
+                  style={styles.eyeIcon}
+                  resizeMode="contain"
+                />
+              </TouchableOpacity>
+            </View>
+          </View>
+
+          {/* CAPTCHA */}
+          <View style={styles.captchaSection}>
+            <Text style={AuthStyles.label}>Captcha</Text>
+            <TouchableOpacity
+              style={styles.captchaContainer}
+              onPress={() => !isLoading && setShowCaptchaModal(true)}
+              activeOpacity={0.8}
+              disabled={isLoading}
+            >
+              <View style={styles.checkbox}>
+                {isChecked && <Text style={styles.checkmark}>✓</Text>}
+              </View>
+              <Text style={styles.captchaText}>
+                {isChecked ? "Verified – I'm not a robot" : "I'm not a robot"}
+              </Text>
+              <Image
+                source={require('../../assets/images/captcha.png')}
+                style={styles.captchaIcon}
+                resizeMode="contain"
+              />
+            </TouchableOpacity>
+          </View>
+
+          {/* Tombol Login */}
+          <View style={AuthStyles.buttonSection}>
+            <TouchableOpacity
+              style={[AuthStyles.primaryButton, isLoading && { opacity: 0.6 }]}
+              onPress={handleLogin}
+              disabled={isLoading}
+              activeOpacity={0.8}
+            >
+              {isLoading ? (
+                <ActivityIndicator color="#FFFFFF" />
+              ) : (
+                <Text style={AuthStyles.primaryButtonText}>Login</Text>
+              )}
+            </TouchableOpacity>
+          </View>
+
+          {/* Link ke Register */}
+          <TouchableOpacity
+            onPress={() => !isLoading && navigation.navigate('Register')}
+            style={styles.registerLink}
+            disabled={isLoading}
+          >
+            <Text style={styles.registerText}>
+              Belum punya akun? <Text style={styles.registerTextBold}>Daftar</Text>
+            </Text>
+          </TouchableOpacity>
+        </ScrollView>
+      </KeyboardAvoidingView>
 
       {/* Modal WebView reCAPTCHA */}
       <Modal
@@ -359,6 +393,19 @@ const styles = StyleSheet.create({
     width: 24,
     height: 24,
     marginLeft: 8,
+  },
+  registerLink: {
+    marginTop: -210,
+    alignSelf: 'center',
+    padding: 10,
+  },
+  registerText: {
+    color: '#fafafaff',
+    fontSize: 12,
+  },
+  registerTextBold: {
+    color: '#DABC4E',
+    fontWeight: 'bold',
   },
   navigationBarSpacer: {
     height: Platform.OS === 'android' ? 48 : 0,

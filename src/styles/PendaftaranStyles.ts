@@ -7,17 +7,17 @@ const PendaftaranStyles = StyleSheet.create({
   },
   headerTitleContainer: {
     backgroundColor: '#F5E6D3',
-    paddingHorizontal: 32,
-    paddingVertical: 6,
+    paddingHorizontal: 36,
+    paddingVertical: 4,
     borderRadius: 20,
     borderWidth: 2,
     borderColor: '#000',
-    top: 14,
+    top: 8,
   },
   headerTitle: {
     fontSize: 16,
     fontWeight: 'bold',
-    color: '#000',
+    color: '#015023',
   },
   progressContainer: {
     paddingHorizontal: 40,

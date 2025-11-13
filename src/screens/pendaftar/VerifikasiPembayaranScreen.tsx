@@ -83,7 +83,7 @@ const VerifikasiPembayaranScreen = () => {
             {/* Lihat Status Button */}
             <TouchableOpacity
               style={localStyles.statusButton}
-              onPress={handleLihatStatus}
+              onPress={() => navigation.navigate('TungguKonfirmasi')}
             >
               <LinearGradient
                 colors={['#189653', '#2DB872']}
@@ -124,7 +124,7 @@ const localStyles = StyleSheet.create({
     fontWeight: 'bold',
     color: '#015023',
     marginBottom: 4,
-    left: 15,
+    left: 35,
   },
   content: {
     flex: 1,

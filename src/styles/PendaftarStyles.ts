@@ -8,7 +8,7 @@ backgroundColor: '#015023',
 },
 
 headerContainer: {
-height: 106,
+height: 90,
 },
 waveBackground: {
 width: '100%',
@@ -51,14 +51,15 @@ justifyContent: 'center',
 alignItems: 'center',
 borderWidth: 2,
 borderColor: '#015023',
+marginRight: 10,
 },
 avatarText: {
-fontSize: 18,
+fontSize: 16,
 fontWeight: 'bold',
 color: '#015023',
 },
 userTextContainer: {
-marginLeft: 10,
+marginRight: 80,
 },
 userName: {
 fontSize: 16,
@@ -317,7 +318,7 @@ zIndex: -1
   headerTitleContainerV2: {
     flex: 1,
     alignItems: 'center',
-    top: 32,
+    right: 14,
   },
   headerTitleContainerV3: {
     flex: 1,
@@ -339,7 +340,7 @@ zIndex: -1
     borderColor: '#000',
   },
   headerTitleV3: {
-    top: 30,
+    top: 20,
     fontSize: 20,
     alignItems: 'center',
     fontWeight: 'bold',

@@ -1,121 +1,51 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { authService, User, LoginCredentials, RegisterData } from '../services/authService';
 
-// 🔹 Simulasi hash sederhana (frontend only, bukan untuk production)
-const simpleHash = (password: string): string => {
-  return `hashed-${password}-salt`;
-};
-
-const simpleCompare = (password: string, hashedPassword: string): boolean => {
-  return hashedPassword === simpleHash(password);
-};
-
-// 🔹 Tipe data user
-interface User {
-  id: string;
-  name: string;
-  email: string;
-  role: 'admin' | 'manager' | 'pendaftar';
-  phone?: string;
-}
-
-// 🔹 Data context auth
+// 📌 Data context auth
 interface AuthContextData {
   user: User | null;
   isAuthenticated: boolean;
   isLoading: boolean;
-  login: (email: string, password: string, recaptchaToken?: string) => Promise<void>;
+  // PERBAIKAN: Menambahkan recaptchaToken ke signature login
+  login: (email: string, password: string, recaptchaToken?: string) => Promise<void>; 
   logout: () => Promise<void>;
   register: (data: RegisterData) => Promise<void>;
-}
-
-interface RegisterData {
-  name: string;
-  email: string;
-  password: string;
-  phone?: string;
+  refreshUser: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextData>({} as AuthContextData);
 
 //
 // ===========================================
-// 🚀 Inisialisasi Dummy Data Otomatis
-// ===========================================
-const initializeDummyData = async () => {
-  const defaultManagers = [
-    {
-      id: 'manager-101',
-      name: 'Budi Manager',
-      email: 'manager@ugn.ac.id',
-      phone: '08111222333',
-      password: simpleHash('Manager123'),
-      role: 'manager',
-      createdAt: new Date().toISOString(),
-      createdBy: 'system-init',
-    },
-  ];
-
-  const defaultUsers = [
-    {
-      id: 'user-201',
-      name: 'Ali Pendaftar',
-      email: 'ali@gmail.com',
-      phone: '08123456789',
-      password: simpleHash('Pendaftar123'),
-      role: 'pendaftar',
-      createdAt: new Date().toISOString(),
-    },
-  ];
-
-  try {
-    const managersData = await AsyncStorage.getItem('@managers');
-    const usersData = await AsyncStorage.getItem('@users');
-
-    const shouldResetManagers =
-      !managersData || managersData === '[]' || managersData === '{}';
-    const shouldResetUsers =
-      !usersData || usersData === '[]' || usersData === '{}';
-
-    if (shouldResetManagers) {
-      await AsyncStorage.setItem('@managers', JSON.stringify(defaultManagers));
-      console.log('✅ Dummy managers data initialized.');
-    }
-
-    if (shouldResetUsers) {
-      await AsyncStorage.setItem('@users', JSON.stringify(defaultUsers));
-      console.log('✅ Dummy users data initialized.');
-    }
-  } catch (error) {
-    console.error('❌ Error initializing dummy data:', error);
-  }
-};
-
-//
-// ===========================================
-// 🌐 Auth Provider
+// 🌐 Auth Provider dengan Laravel Integration
 // ===========================================
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const initializeApp = async () => {
-      // simulasi loading
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      await initializeDummyData(); // pastikan dummy dibuat
-      await checkUserLoggedIn();
-    };
-    initializeApp();
+    checkUserLoggedIn();
   }, []);
 
-  // 🔹 Cek user tersimpan di AsyncStorage
+  // 📌 Cek user tersimpan di AsyncStorage dan validasi token
   const checkUserLoggedIn = async () => {
     try {
-      const userData = await AsyncStorage.getItem('@user');
-      const token = await AsyncStorage.getItem('@token');
-      if (userData && token) {
-        setUser(JSON.parse(userData));
+      const token = await AsyncStorage.getItem('token');
+      
+      if (token) {
+        // Validasi token dengan memanggil endpoint /user
+        try {
+          const userData = await authService.getCurrentUser();
+          setUser(userData);
+          console.log('✅ User authenticated:', userData.email);
+        } catch (error) {
+          // Token invalid/expired, clear storage
+          console.log('⚠️ Token invalid, clearing auth data');
+          await AsyncStorage.removeItem('token');
+          await AsyncStorage.removeItem('user');
+          setUser(null);
+        }
       }
     } catch (error) {
       console.error('Error checking user:', error);
@@ -124,120 +54,138 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  // 🔹 Fungsi LOGIN
+  // 📌 Fungsi LOGIN - Integrasi Laravel API
   const login = async (email: string, password: string, recaptchaToken?: string) => {
     try {
-      await new Promise(resolve => setTimeout(resolve, 1000)); // simulasi delay API
-      let userData: User;
-
-      // --- ADMIN login ---
-      if (email === 'admin@ugn.ac.id' && password === 'Admin123') {
-        userData = {
-          id: '1',
-          name: 'Administrator',
-          email,
-          role: 'admin',
-        };
-      }
-      // --- MANAGER login ---
-      else if (email.includes('manager@') || email.includes('.manager@')) {
-        const managersData = await AsyncStorage.getItem('@managers');
-        const managers = managersData ? JSON.parse(managersData) : [];
-
-        console.log('📦 Loaded managers:', managers);
-
-        const managerAccount = managers.find((m: any) => m.email === email);
-        if (!managerAccount) {
-          throw new Error('Akun manager tidak ditemukan. Hubungi administrator.');
-        }
-
-        if (!simpleCompare(password, managerAccount.password)) {
-          throw new Error('Password salah');
-        }
-
-        userData = {
-          id: managerAccount.id,
-          name: managerAccount.name,
-          email: managerAccount.email,
-          role: 'manager',
-          phone: managerAccount.phone,
-        };
-      }
-      // --- PENDAFTAR login ---
-      else {
-        const usersData = await AsyncStorage.getItem('@users');
-        const users = usersData ? JSON.parse(usersData) : [];
-
-        console.log('📦 Loaded users:', users);
-
-        const userAccount = users.find((u: any) => u.email === email);
-        if (!userAccount) {
-          throw new Error('Email tidak terdaftar. Silakan registrasi terlebih dahulu.');
-        }
-
-        if (!simpleCompare(password, userAccount.password)) {
-          throw new Error('Password salah');
-        }
-
-        userData = {
-          id: userAccount.id,
-          name: userAccount.name,
-          email: userAccount.email,
-          role: 'pendaftar',
-          phone: userAccount.phone,
-        };
-      }
-
-      // Simpan user dan token
-      await AsyncStorage.setItem('@user', JSON.stringify(userData));
-      await AsyncStorage.setItem('@token', `token-${userData.role}-${Date.now()}`);
-
-      setUser(userData);
-      console.log(`✅ Login success as ${userData.role}`);
-    } catch (error: any) {
-      throw new Error(error.message || 'Login gagal. Silakan coba lagi.');
-    }
-  };
-
-  // 🔹 Fungsi LOGOUT
-  const logout = async () => {
-    try {
-      await AsyncStorage.removeItem('@user');
-      await AsyncStorage.removeItem('@token');
-      setUser(null);
-      console.log('👋 Logout success.');
-    } catch (error) {
-      console.error('Error logging out:', error);
-    }
-  };
-
-  // 🔹 Fungsi REGISTER
-  const register = async (data: RegisterData) => {
-    try {
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      const usersData = await AsyncStorage.getItem('@users');
-      const users = usersData ? JSON.parse(usersData) : [];
-
-      const existingUser = users.find((u: any) => u.email === data.email);
-      if (existingUser) {
-        throw new Error('Email sudah terdaftar. Silakan gunakan email lain.');
-      }
-
-      const newUser = {
-        id: `user-${Date.now()}`,
-        name: data.name,
-        email: data.email,
-        password: simpleHash(data.password),
-        role: 'pendaftar',
-        phone: data.phone,
-        createdAt: new Date().toISOString(),
+      const credentials: LoginCredentials = {
+        email: email.trim().toLowerCase(),
+        password: password,
+        recaptchaToken: recaptchaToken, // TERUSKAN: token reCAPTCHA
       };
 
-      users.push(newUser);
-      await AsyncStorage.setItem('@users', JSON.stringify(users));
-      console.log('✅ Registrasi berhasil:', newUser);
+      // Panggil API Laravel
+      const response = await authService.login(credentials);
+      
+      setUser(response.user);
+      console.log(`✅ Login success as ${response.user.role}:`, response.user.email);
+      
     } catch (error: any) {
-      throw new Error(error.message || 'Registrasi gagal. Silakan coba lagi.');
+// ... (penanganan error tidak berubah)
+      console.error('Login error:', error);
+      
+      // Handle error dari Laravel API
+      if (error.response) {
+        const status = error.response.status;
+        const message = error.response.data?.message || 'Login gagal';
+        
+        if (status === 401) {
+          throw new Error('Email atau password salah');
+        } else if (status === 422) {
+          // Validation error
+          const errors = error.response.data?.errors;
+          if (errors) {
+            const firstError = Object.values(errors)[0];
+            throw new Error(Array.isArray(firstError) ? firstError[0] : 'Data tidak valid');
+          }
+        } else if (status === 429) {
+          throw new Error('Terlalu banyak percobaan login. Silakan coba lagi nanti.');
+        }
+        
+        throw new Error(message);
+      } else if (error.request) {
+        throw new Error('Tidak dapat terhubung ke server. Periksa koneksi internet Anda.');
+      } else {
+        throw new Error(error.message || 'Login gagal. Silakan coba lagi.');
+      }
+    }
+  };
+
+  // 📌 Fungsi LOGOUT - Integrasi Laravel API
+  const logout = async () => {
+    try {
+      await authService.logout();
+      setUser(null);
+      console.log('👋 Logout success');
+    } catch (error) {
+      console.error('Error logging out:', error);
+      // Tetap clear local data meskipun API call gagal
+      await AsyncStorage.removeItem('token');
+      await AsyncStorage.removeItem('user');
+      setUser(null);
+    }
+  };
+
+  // 📌 Fungsi REGISTER - Integrasi Laravel API
+  const register = async (data: RegisterData) => {
+    try {
+      // Validasi password confirmation di frontend
+      if (data.password !== data.password_confirmation) {
+        throw new Error('Konfirmasi password tidak cocok');
+      }
+
+      // Panggil API Laravel
+      const response = await authService.register({
+        name: data.name.trim(),
+        email: data.email.trim().toLowerCase(),
+        password: data.password,
+        password_confirmation: data.password_confirmation,
+        phone: data.phone, // TERUSKAN: phone
+      });
+
+      console.log('✅ Registration success:', response.user.email);
+      
+      // ...
+    } catch (error: any) {
+// ... (penanganan error tidak berubah)
+      console.error('Registration error:', error);
+      
+      // Handle error dari Laravel API
+      if (error.response) {
+        const status = error.response.status;
+        const message = error.response.data?.message || 'Registrasi gagal';
+        
+        if (status === 422) {
+          // Validation error
+          const errors = error.response.data?.errors;
+          if (errors) {
+            // Ambil error pertama
+            if (errors.email) {
+              throw new Error(errors.email[0]);
+            } else if (errors.password) {
+              throw new Error(errors.password[0]);
+            } else if (errors.name) {
+              throw new Error(errors.name[0]);
+            } else if (errors.username) { // Tambahkan penanganan error username
+              throw new Error(errors.username[0]);
+            } else if (errors['g-recaptcha-response']) {
+              throw new Error('Verifikasi Captcha gagal. Coba lagi.');
+            } else {
+              const firstError = Object.values(errors)[0];
+              throw new Error(Array.isArray(firstError) ? firstError[0] : 'Data tidak valid');
+            }
+          }
+        } else if (status === 409) {
+          throw new Error('Email sudah terdaftar');
+        }
+        
+        throw new Error(message);
+      } else if (error.request) {
+        throw new Error('Tidak dapat terhubung ke server. Periksa koneksi internet Anda.');
+      } else {
+        throw new Error(error.message || 'Registrasi gagal. Silakan coba lagi.');
+      }
+    }
+  };
+
+  // 📌 Refresh user data from API
+  const refreshUser = async () => {
+    try {
+      const userData = await authService.getCurrentUser();
+      setUser(userData);
+    } catch (error) {
+      console.error('Error refreshing user:', error);
+      // Jika gagal refresh, logout user
+      await logout();
     }
   };
 
@@ -250,6 +198,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         login,
         logout,
         register,
+        refreshUser,
       }}
     >
       {children}
@@ -259,7 +208,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
 //
 // ===========================================
-// 🔹 Custom Hook untuk akses context
+// 📌 Custom Hook untuk akses context
 // ===========================================
 export const useAuth = () => {
   const context = useContext(AuthContext);
