@@ -16,7 +16,7 @@ import { // Tambahkan ActivityIndicator dan RefreshControl
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation, useIsFocused } from '@react-navigation/native'; // Tambahkan useIsFocused
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-
+import LinearGradient from 'react-native-linear-gradient';
 // Import Services dan Styles
 import { AdminStyles } from '../../styles/AdminStyles'; 
 import { AdminStackParamList } from '../../navigation/AdminNavigator'; 
@@ -161,6 +161,19 @@ const AddManagerScreen = () => { // Ganti nama komponen menjadi AddManagerScreen
           {/* Spacer untuk Bottom Nav Fixed */}
           <View style={AdminStyles.navSpacer} />
 
+          <TouchableOpacity 
+                onPress={() => navigation.navigate('AdminDashboard')}
+              >
+                <LinearGradient
+                    colors={['#DABC4E', '#EFE3B0']}
+                    start={{ x: 0, y: 0.5 }}
+                    end={{ x: 1, y: 1 }}
+                    style={localStyles.actionButtonPrimary}
+                    >
+                <Text style={localStyles.actionButtonTextSecondary}>Kembali ke Dashboard</Text>
+                </LinearGradient>
+              </TouchableOpacity>
+
         </View>
       </ScrollView>
 
@@ -202,7 +215,6 @@ const AddManagerScreen = () => { // Ganti nama komponen menjadi AddManagerScreen
           </View>
         </TouchableOpacity>
       </View>
-
     </SafeAreaView>
   );
 };
@@ -211,6 +223,25 @@ const AddManagerScreen = () => { // Ganti nama komponen menjadi AddManagerScreen
 const localStyles = StyleSheet.create({
   scrollContent: {
     paddingBottom: 20,
+  },
+  actionButtonTextSecondary: {
+    fontSize: 15,
+    fontWeight: 'bold',
+    color: '#ffffffff',
+    marginRight: 8,
+  },
+
+  actionButtonPrimary: {
+    flexDirection: 'row',
+    backgroundColor: '#DABC4E',
+    borderRadius: 30,
+    paddingVertical: 14,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginHorizontal: 20,
+    marginBottom: 12,
+    borderWidth: 2,
+    borderColor: '#000000',
   },
   
   // --- Manager Users Label ---

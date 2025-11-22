@@ -15,7 +15,8 @@ import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 // Asumsi AdminStackParamList ada, jika tidak, ganti dengan tipe navigasi yang sesuai
 import { AdminStackParamList } from '../../navigation/AdminNavigator'; 
-import { AdminStyles } from '../../styles/AdminStyles'; 
+import { AdminStyles } from '../../styles/AdminStyles';
+import LinearGradient from 'react-native-linear-gradient'; 
 
 const { width } = Dimensions.get('window');
 const CARD_WIDTH = (width - 24 * 3) / 2; // (Total width - padding * 3) / 2
@@ -121,7 +122,13 @@ const StatistikPendaftaran = () => {
       >
         {/* Header */}
         <View style={localStyles.headerContainer}>
-          <View style={localStyles.headerBackground}>
+          <View>
+            <LinearGradient
+                        colors={['#DABC4E', '#EFE3B0']}
+                        start={{ x: 0, y: 0 }}
+                        end={{ x: 1, y: 0 }}
+                        style={localStyles.headerBackground}
+                      >
             <View style={localStyles.headerContent}>
               {/* Tombol Back */}
               <TouchableOpacity
@@ -138,6 +145,7 @@ const StatistikPendaftaran = () => {
                  <Text style={localStyles.headerTitle}>Kelola Pendaftaran</Text>
               </View>
             </View>
+            </LinearGradient>
           </View>
         </View>
 
@@ -151,7 +159,7 @@ const StatistikPendaftaran = () => {
           </TouchableOpacity>
           <TouchableOpacity 
             style={localStyles.inactiveTab}
-            onPress={() => handleSwitchTab('pembayaran')}
+            onPress={() => navigation.navigate('StatistikPembayaran')}
           >
             <Text style={localStyles.inactiveTabText}>Statistik Pembayaran</Text>
           </TouchableOpacity>
@@ -244,22 +252,34 @@ const StatistikPendaftaran = () => {
         
         {/* Action Buttons */}
         <TouchableOpacity 
-          style={localStyles.actionButtonPrimary}
-          onPress={handleStatistikPerProdi}
+          onPress={() => navigation.navigate('StatistikProdi')}
         >
+          <LinearGradient
+              colors={['#DABC4E', '#EFE3B0']}
+              start={{ x: 0, y: 0.5 }}
+              end={{ x: 1, y: 1 }}
+              style={localStyles.actionButtonPrimary}
+              >
           <Text style={localStyles.actionButtonText}>Statistik Per Prodi</Text>
           <Image
               source={require('../../assets/icons/streamline-sharp_graduation-cap-remix.png')}
               style={localStyles.actionButtonIcon}
               resizeMode="contain"
           />
+          </LinearGradient>
         </TouchableOpacity>
 
         <TouchableOpacity 
-          style={localStyles.actionButtonSecondary}
           onPress={() => navigation.navigate('DataPendaftar')}
         >
+          <LinearGradient
+              colors={['#DABC4E', '#EFE3B0']}
+              start={{ x: 0, y: 0.5 }}
+              end={{ x: 1, y: 1 }}
+              style={localStyles.actionButtonPrimary}
+              >
           <Text style={localStyles.actionButtonTextSecondary}>Lihat Detail Data Pendaftar</Text>
+          </LinearGradient>
         </TouchableOpacity>
         
         {/* Spacer */}
@@ -330,14 +350,13 @@ const localStyles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: 16,
-    paddingTop: 10,
   },
   headerIconContainerLeft: {
     width: 36,
     height: 36,
     justifyContent: 'center',
     alignItems: 'center',
-    marginRight: 12,
+    marginRight: 22,
   },
   headerIcon: {
     width: 30,

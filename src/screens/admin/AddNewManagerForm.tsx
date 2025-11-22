@@ -17,7 +17,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { AdminStackParamList } from '../../navigation/AdminNavigator';
-
+import LinearGradient from 'react-native-linear-gradient';
 // 📌 Import Axios Instance dan Tipe Data
 import api from '../../services/api'; 
 import { UserManagement } from '../../services/apiService'; 
@@ -311,16 +311,23 @@ const AddNewManagerForm = () => {
 
           {/* Action Buttons */}
           <TouchableOpacity 
-            style={localStyles.submitButton}
+            
             onPress={handleNextToPermission} // 📌 DIPERBAIKI: Menggunakan fungsi navigasi
             disabled={isLoading}
           >
+            <LinearGradient
+              colors={['#DABC4E', '#EFE3B0']}
+              start={{ x: 0, y: 0.5 }}
+              end={{ x: 1, y: 1 }}
+              style={localStyles.submitButton}
+            >
             {isLoading ? (
               <ActivityIndicator color="#015023" />
             ) : (
               
               <Text style={localStyles.submitButtonText}>Lanjutkan ke Permissions</Text>
             )}
+            </LinearGradient>
           </TouchableOpacity>
 
           <TouchableOpacity 
@@ -456,6 +463,8 @@ alignItems: 'center',
 justifyContent: 'center',
 marginTop: 24,
 marginBottom: 12,
+borderWidth: 2,
+borderColor: '#000000ff',
 },
 submitButtonText: {
 fontSize: 16,
@@ -468,6 +477,8 @@ borderRadius: 25,
 paddingVertical: 14,
 alignItems: 'center',
 justifyContent: 'center',
+borderWidth: 2,
+borderColor: '#000000ff',
 },
 cancelButtonText: {
 fontSize: 16,

@@ -105,7 +105,8 @@ const DashboardAdmin = () => {
           </View>
 
           {/* Action Buttons */}
-          <TouchableOpacity>
+          <TouchableOpacity
+          onPress={() => navigation.navigate('StatistikPendaftaran')}>
             <LinearGradient
               colors={['#DABC4E', '#EFE3B0']}
               start={{ x: 0, y: 0.5 }}

@@ -32,7 +32,7 @@ export interface Profile {
   gender?: 'L' | 'P';
   religion?: string;
   birth_place?: string;
-  birth_date?: string; // Format: YYYY-MM-DD
+  birth_date?: string; 
   nik?: string;
   birth_certificate_number?: string;
   no_kk?: string;

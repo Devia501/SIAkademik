@@ -37,7 +37,7 @@ const paymentData = {
 };
 
 // ============================================
-// 東 Komponen Modal View Image (Dengan Gradient)
+// Komponen Modal View Image
 // ============================================
 interface ImageViewModalProps {
   isVisible: boolean;
@@ -482,7 +482,7 @@ const localStyles = StyleSheet.create({
   },
 
   // ============================================
-  // 東 STYLES MODAL VIEW IMAGE (Gradient Diperbarui)
+  //  STYLES MODAL VIEW IMAGE
   // ============================================
   modalCenteredView: {
     flex: 1,

@@ -59,7 +59,7 @@ fontWeight: 'bold',
 color: '#015023',
 },
 userTextContainer: {
-marginRight: 80,
+marginRight: 20,
 },
 userName: {
 fontSize: 16,

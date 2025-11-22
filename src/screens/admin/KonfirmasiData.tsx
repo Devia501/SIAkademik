@@ -13,47 +13,103 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
+import type { RouteProp } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { AdminStackParamList } from '../../navigation/AdminNavigator'; 
+import type { AdminStackParamList } from '../../navigation/AdminNavigator';
+import { UserManagement } from '../../services/apiService';
+import LinearGradient from 'react-native-linear-gradient';
+// ============================================
+// 📌 TYPE DEFINITIONS
+// ============================================
 
-type KonfirmasiDataNavigationProp = NativeStackNavigationProp<AdminStackParamList, 'KonfirmasiData'>;
+// Tipe data yang diterima dari ReviewData (setelah save berhasil)
+interface KonfirmasiDataParams {
+  name: string;
+  email: string;
+  username: string;
+  role: 'manager' | 'admin';
+  savedData: UserManagement; // Data hasil API
+}
 
-// Data dummy untuk tampilan statis sesuai desain
-const DUMMY_DATA = {
-  nama: 'Siti Nur Azizah',
-  username: '@manager_azizah_new',
-  email: 'siti.azizah@gmail.com',
-  role: 'Administrator', // Dalam konteks ini, mungkin Role yang diberikan
-  createdAt: '12 Oktober 2025, 14:30',
-};
+// Props untuk komponen
+interface KonfirmasiDataProps {
+  route: RouteProp<AdminStackParamList, 'KonfirmasiData'>;
+}
 
-const KonfirmasiData = () => {
+// Tipe untuk navigasi
+type KonfirmasiDataNavigationProp = NativeStackNavigationProp<
+  AdminStackParamList,
+  'KonfirmasiData'
+>;
+
+// ============================================
+// 📌 MAIN COMPONENT
+// ============================================
+const KonfirmasiData: React.FC<KonfirmasiDataProps> = ({ route }) => {
   const navigation = useNavigation<KonfirmasiDataNavigationProp>();
 
-  const managerData = DUMMY_DATA;
-  
-  const handleKembaliKeUserList = () => {
-    console.log('Kembali ke User List');
-    // Ganti 'UserList' dengan nama screen daftar manager Anda
-    // navigation.navigate('UserList'); 
-    navigation.popToTop(); 
+  // 📌 Ambil data dari route params
+  const params = route.params as KonfirmasiDataParams;
+  const savedData = params?.savedData;
+
+  // Fallback jika tidak ada data
+  if (!savedData) {
+    return (
+      <SafeAreaView style={[localStyles.container, { justifyContent: 'center', alignItems: 'center' }]}>
+        <Text style={{ color: '#FFFFFF', fontSize: 16, marginBottom: 20 }}>
+          Data tidak ditemukan
+        </Text>
+        <TouchableOpacity
+          style={localStyles.userListButton}
+          onPress={() => navigation.navigate('AddNewManager' as any)}
+        >
+          <Text style={localStyles.userListButtonText}>Kembali ke User List</Text>
+        </TouchableOpacity>
+      </SafeAreaView>
+    );
+  }
+
+  // Format data untuk ditampilkan
+  const displayData = {
+    name: savedData.name,
+    username: savedData.username ? `@${savedData.username}` : savedData.email.split('@')[0],
+    email: savedData.email,
+    role: savedData.role.charAt(0).toUpperCase() + savedData.role.slice(1),
+    createdAt: new Date(savedData.created_at).toLocaleString('id-ID', {
+      day: '2-digit',
+      month: 'long',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+    }),
+  };
+
+  // ============================================
+  // 📌 HANDLERS NAVIGASI
+  // ============================================
+
+  const handleKirimUlangEmail = () => {
+    Alert.alert(
+      'Kirim Ulang Email',
+      `Email aktivasi telah dikirim ulang ke alamat ${displayData.email}.`
+    );
+  };
+
+  const handleBackToUserList = () => {
+    navigation.navigate('AddNewManager' as any);
   };
 
   const handleTambahManagerLagi = () => {
-    console.log('Tambah Manager Lagi');
-    // Ganti 'AddNewManagerForm' dengan nama screen tambah manager
-    // navigation.navigate('AddNewManagerForm'); 
-    navigation.goBack(); // Untuk contoh, kembali ke AddNewManagerForm
-  };
-
-  const handleKirimUlangEmail = () => {
-    Alert.alert('Kirim Ulang Email', 'Email aktivasi telah dikirim ulang ke alamat manager.');
+    navigation.navigate('AddNewManagerForm' as any);
   };
 
   const handleBack = () => {
-    navigation.goBack();
+    navigation.navigate('AddNewManager' as any);
   };
 
+  // ============================================
+  // 📌 RENDER LAYAR SUKSES
+  // ============================================
   return (
     <SafeAreaView style={localStyles.container} edges={['top', 'bottom']}>
       <ScrollView
@@ -63,7 +119,7 @@ const KonfirmasiData = () => {
         {/* Header */}
         <View style={localStyles.headerContainer}>
           <ImageBackground
-            source={require('../../assets/images/App Bar - Bottom.png')} // Ganti dengan path gambar header
+            source={require('../../assets/images/App Bar - Bottom.png')}
             style={localStyles.waveBackground}
             resizeMode="cover"
           >
@@ -74,18 +130,18 @@ const KonfirmasiData = () => {
                 onPress={handleBack}
               >
                 <Image
-                  source={require('../../assets/icons/material-symbols_arrow-back-rounded.png')} // Ikon back
+                  source={require('../../assets/icons/material-symbols_arrow-back-rounded.png')}
                   style={localStyles.headerIcon}
                   resizeMode="contain"
                 />
               </TouchableOpacity>
               <View style={localStyles.headerTitleContainer}>
-                 <Image 
-                    source={require('../../assets/icons/lets-icons_check-fill.png')} // Ikon centang
-                    style={localStyles.checkIcon}
-                    resizeMode="contain"
-                 />
-                 <Text style={localStyles.headerTitle}>Konfirmasi Data</Text>
+                <Image
+                  source={require('../../assets/icons/lets-icons_check-fill.png')}
+                  style={localStyles.checkIcon}
+                  resizeMode="contain"
+                />
+                <Text style={localStyles.headerTitle}>Manager Dibuat</Text>
               </View>
             </View>
           </ImageBackground>
@@ -93,11 +149,10 @@ const KonfirmasiData = () => {
 
         {/* Content */}
         <View style={localStyles.formContainer}>
-          
           {/* Checkmark Circle */}
           <View style={localStyles.successCircle}>
             <Image
-              source={require('../../assets/icons/complete.png')} // Ikon centang besar
+              source={require('../../assets/icons/complete.png')}
               style={localStyles.successCheck}
               resizeMode="contain"
             />
@@ -105,86 +160,123 @@ const KonfirmasiData = () => {
 
           {/* Success Message */}
           <Text style={localStyles.successTitle}>Manager Berhasil Dibuat!</Text>
-          <Text style={localStyles.successSubtitle}>Manager baru telah ditambahkan ke sistem.</Text>
+          <Text style={localStyles.successSubtitle}>
+            Manager baru telah ditambahkan ke sistem.
+          </Text>
 
           {/* Summary Card */}
           <View style={localStyles.summaryCard}>
-            <Text style={localStyles.summaryName}>{managerData.nama}</Text>
-            <Text style={localStyles.summaryUsername}>{managerData.username}</Text>
+            <Text style={localStyles.summaryName}>{displayData.name}</Text>
+            <Text style={localStyles.summaryUsername}>
+              {displayData.username}
+            </Text>
 
             <View style={localStyles.summaryDetail}>
               <Image
-                source={require('../../assets/icons/majesticons_mail.png')} // Ikon Email
+                source={require('../../assets/icons/majesticons_mail.png')}
                 style={localStyles.summaryIcon}
                 resizeMode="contain"
               />
-              <Text style={localStyles.summaryDetailText}>{managerData.email}</Text>
+              <Text style={localStyles.summaryDetailText}>
+                {displayData.email}
+              </Text>
             </View>
 
             <View style={localStyles.summaryDetail}>
               <Image
-                source={require('../../assets/icons/majesticons_key.png')} // Ikon Person/Role
+                source={require('../../assets/icons/majesticons_key.png')}
                 style={localStyles.summaryIcon}
                 resizeMode="contain"
               />
-              <Text style={localStyles.summaryDetailText}>{managerData.role}</Text>
+              <Text style={localStyles.summaryDetailText}>
+                {displayData.role}
+              </Text>
             </View>
-            
+
             <View style={localStyles.summaryDetail}>
               <Image
-                source={require('../../assets/icons/clarity_date-solid (1).png')} // Ikon Calendar/Created At
+                source={require('../../assets/icons/clarity_date-solid (1).png')}
                 style={localStyles.summaryIcon}
                 resizeMode="contain"
               />
-              <Text style={localStyles.summaryDetailText}>Created : {managerData.createdAt}</Text>
+              <Text style={localStyles.summaryDetailText}>
+                Created : {displayData.createdAt}
+              </Text>
             </View>
           </View>
 
           {/* Email Sent Badge */}
-          <TouchableOpacity 
-             style={localStyles.emailBadge}
-             onPress={() => Alert.alert('Informasi', `Email aktivasi dikirim ke ${managerData.email}`)}
+          <TouchableOpacity
+            style={localStyles.emailBadge}
+            onPress={() =>
+              Alert.alert(
+                'Informasi',
+                `Email aktivasi dikirim ke ${displayData.email}`
+              )
+            }
           >
             <Image
-              source={require('../../assets/icons/lets-icons_check-fill (1).png')} // Ikon Email putih
+              source={require('../../assets/icons/lets-icons_check-fill (1).png')}
               style={localStyles.emailBadgeIcon}
               resizeMode="contain"
             />
-            <Text style={localStyles.emailBadgeText}>Email aktivasi telah dikirim ke</Text>
-            <Text style={localStyles.emailBadgeTextBold}>{managerData.email}</Text>
+            <Text style={localStyles.emailBadgeText}>
+              Email aktivasi telah dikirim ke: {displayData.email}
+            </Text>
           </TouchableOpacity>
 
           {/* Next Steps Card */}
           <View style={localStyles.stepsCard}>
             <Text style={localStyles.stepsTitle}>Langkah Selanjutnya</Text>
             <View style={localStyles.stepsList}>
-              <Text style={localStyles.stepItem}>1. Manager akan menerima email aktivasi</Text>
-              <Text style={localStyles.stepItem}>2. Manager perlu verifikasi email</Text>
-              <Text style={localStyles.stepItem}>3. Manager dapat login setelah verifikasi</Text>
-              <Text style={localStyles.stepItem}>4. Password akan di-set saat aktivasi</Text>
+              <Text style={localStyles.stepItem}>
+                1. Manager akan menerima email aktivasi
+              </Text>
+              <Text style={localStyles.stepItem}>
+                2. Manager perlu verifikasi email
+              </Text>
+              <Text style={localStyles.stepItem}>
+                3. Manager dapat login setelah verifikasi
+              </Text>
+              <Text style={localStyles.stepItem}>
+                4. Password akan di-set saat aktivasi
+              </Text>
             </View>
           </View>
 
           {/* Action Buttons */}
-          <TouchableOpacity 
-            style={localStyles.userListButton}
-            onPress={() => navigation.navigate('AddNewManager')}
+          <TouchableOpacity
+            
+            onPress={handleBackToUserList}
           >
-            <Text style={localStyles.userListButtonText}>Kembali ke User List</Text>
+            <LinearGradient
+              colors={['#DABC4E', '#EFE3B0']}
+              start={{ x: 0, y: 0.5 }}
+              end={{ x: 1, y: 1 }}
+              style={localStyles.userListButton}
+              >
+            <Text style={localStyles.userListButtonText}>
+              Kembali ke User List
+            </Text>
+            </LinearGradient>
           </TouchableOpacity>
 
-          <TouchableOpacity 
+          <TouchableOpacity
             style={localStyles.addMoreButton}
-            onPress={() => navigation.navigate('AddNewManagerForm')}
+            onPress={handleTambahManagerLagi}
           >
-            <Text style={localStyles.addMoreButtonText}>Tambah Manager Lagi</Text>
+            <Text style={localStyles.addMoreButtonText}>
+              Tambah Manager Lagi
+            </Text>
           </TouchableOpacity>
 
-          <TouchableOpacity 
+          <TouchableOpacity
             style={localStyles.resendEmailButton}
             onPress={handleKirimUlangEmail}
           >
-            <Text style={localStyles.resendEmailButtonText}>Kirim Ulang Email</Text>
+            <Text style={localStyles.resendEmailButtonText}>
+              Kirim Ulang Email
+            </Text>
           </TouchableOpacity>
 
           {/* Spacer */}
@@ -194,7 +286,7 @@ const KonfirmasiData = () => {
 
       {/* Background Logo */}
       <Image
-        source={require('../../assets/images/logo-ugn.png')} // Ganti dengan path logo UGN
+        source={require('../../assets/images/logo-ugn.png')}
         style={localStyles.backgroundLogo}
         resizeMode="contain"
       />
@@ -205,7 +297,7 @@ const KonfirmasiData = () => {
 const localStyles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#015023', // Warna hijau tua
+    backgroundColor: '#015023',
   },
   scrollContent: {
     flexGrow: 1,
@@ -218,27 +310,24 @@ const localStyles = StyleSheet.create({
     width: '100%',
     height: 80,
     justifyContent: 'center',
-    backgroundColor: '#DABC4E', // Warna Emas/Kuning pada header
+    backgroundColor: '#DABC4E',
   },
   headerContent: {
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: 20,
-    marginTop: 20, 
   },
   headerIconContainerLeft: {
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: 'rgba(0, 0, 0, 0.1)', // Latar belakang tombol back
     justifyContent: 'center',
     alignItems: 'center',
-    marginRight: 12,
+    marginRight: 28,
   },
   headerIcon: {
     width: 24,
     height: 24,
-    tintColor: '#015023', // Ikon back
   },
   headerTitleContainer: {
     flexDirection: 'row',
@@ -249,13 +338,12 @@ const localStyles = StyleSheet.create({
   checkIcon: {
     width: 24,
     height: 24,
-    tintColor: '#015023', // Ikon centang
     marginRight: 8,
   },
   headerTitle: {
     fontSize: 20,
     fontWeight: 'bold',
-    color: '#015023', // Teks judul
+    color: '#000000ff',
   },
   formContainer: {
     flex: 1,
@@ -267,11 +355,11 @@ const localStyles = StyleSheet.create({
     width: 120,
     height: 120,
     borderRadius: 60,
-    backgroundColor: '#38A169', // Hijau sukses
+    backgroundColor: '#38A169',
     justifyContent: 'center',
     alignItems: 'center',
     borderWidth: 6,
-    borderColor: '#DABC4E', // Border emas
+    borderColor: '#DABC4E',
     marginBottom: 20,
   },
   successCheck: {
@@ -292,7 +380,7 @@ const localStyles = StyleSheet.create({
     textAlign: 'center',
   },
   summaryCard: {
-    backgroundColor: '#FEFAE0', // Putih gading
+    backgroundColor: '#FEFAE0',
     borderRadius: 25,
     padding: 24,
     marginBottom: 20,
@@ -303,6 +391,8 @@ const localStyles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 5,
     elevation: 3,
+    borderWidth: 3,
+    borderColor: '#DABC4E',
   },
   summaryName: {
     fontSize: 18,
@@ -334,17 +424,19 @@ const localStyles = StyleSheet.create({
   emailBadge: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#38A169', // Hijau yang berbeda untuk badge email
+    backgroundColor: '#38A169',
     borderRadius: 20,
-    paddingHorizontal: 16,
-    paddingVertical: 10,
+    width: '80%',
+    paddingVertical: 20,
     marginBottom: 30,
+    borderWidth: 2,
+    borderColor: '#DABC4E',
   },
   emailBadgeIcon: {
     width: 16,
     height: 16,
-    tintColor: '#FFFFFF',
     marginRight: 8,
+    marginLeft: 22,
   },
   emailBadgeText: {
     fontSize: 13,
@@ -354,10 +446,10 @@ const localStyles = StyleSheet.create({
     fontSize: 13,
     fontWeight: 'bold',
     color: '#FFFFFF',
-    marginLeft: 4,
+    marginLeft: 8,
   },
   stepsCard: {
-    backgroundColor: '#FEFAE0', // Putih gading
+    backgroundColor: '#FEFAE0',
     borderRadius: 25,
     padding: 24,
     marginBottom: 30,
@@ -367,6 +459,8 @@ const localStyles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 5,
     elevation: 3,
+    borderWidth: 3,
+    borderColor: '#DABC4E',
   },
   stepsTitle: {
     fontSize: 16,
@@ -390,14 +484,14 @@ const localStyles = StyleSheet.create({
     justifyContent: 'center',
     marginTop: 10,
     marginBottom: 12,
-    width: '100%',
-    borderWidth: 1,
-    borderColor: '#000000ff',
+    borderWidth: 2,
+    borderColor: '#000000',
+    paddingHorizontal: 80,
   },
   userListButtonText: {
     fontSize: 16,
     fontWeight: 'bold',
-    color: '#ffffffff',
+    color: '#FFFFFF',
   },
   addMoreButton: {
     backgroundColor: '#38A169',
@@ -407,8 +501,8 @@ const localStyles = StyleSheet.create({
     justifyContent: 'center',
     marginBottom: 12,
     width: '100%',
-    borderWidth: 1,
-    borderColor: '#000000ff',
+    borderWidth: 2,
+    borderColor: '#000000',
   },
   addMoreButtonText: {
     fontSize: 16,
@@ -416,19 +510,19 @@ const localStyles = StyleSheet.create({
     color: '#FFFFFF',
   },
   resendEmailButton: {
-    backgroundColor: '#DC2626',
+    backgroundColor: '#ffffffff',
     borderRadius: 25,
     paddingVertical: 14,
     alignItems: 'center',
     justifyContent: 'center',
     width: '100%',
-    borderWidth: 1,
-    borderColor: '#000000ff',
+    borderWidth: 2,
+    borderColor: '#000000',
   },
   resendEmailButtonText: {
     fontSize: 16,
     fontWeight: 'bold',
-    color: '#FFFFFF',
+    color: '#000000ff',
   },
   backgroundLogo: {
     position: 'absolute',
@@ -436,7 +530,7 @@ const localStyles = StyleSheet.create({
     alignSelf: 'center',
     width: 950,
     height: 950,
-    opacity: 0.20,
+    opacity: 0.2,
     zIndex: -1,
   },
 });

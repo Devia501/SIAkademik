@@ -12,6 +12,8 @@ import StatistikPendaftaran from '../screens/admin/StatistikPendaftaran';
 import DataPendaftar from '../screens/admin/DataPendaftar';
 import VerifikasiDokumen from '../screens/admin/VerifikasiDokumen';
 import VerifikasiPembayaran from '../screens/admin/VerifikasiPembayaran';
+import StatistikPembayaran from '../screens/admin/StatistikPembayaran';
+import StatistikProdi from '../screens/admin/StatistikProdi';
 // Import screen lain untuk admin di sini
 
 export type AdminStackParamList = {
@@ -32,6 +34,8 @@ export type AdminStackParamList = {
     registrationId: number;
   };
   VerifikasiPembayaran: undefined;
+  StatistikPembayaran: undefined;
+  StatistikProdi: undefined;
 };
 
 const Stack = createNativeStackNavigator<AdminStackParamList>();
@@ -59,6 +63,8 @@ const AdminNavigator = () => {
       <Stack.Screen name="DataPendaftar" component={DataPendaftar} />
       <Stack.Screen name="VerifikasiDokumen" component={VerifikasiDokumen} />
       <Stack.Screen name="VerifikasiPembayaran" component={VerifikasiPembayaran} />
+      <Stack.Screen name="StatistikPembayaran" component={StatistikPembayaran} />
+      <Stack.Screen name="StatistikProdi" component={StatistikProdi} />
     </Stack.Navigator>
   );
 };

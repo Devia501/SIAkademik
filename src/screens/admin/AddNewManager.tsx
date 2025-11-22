@@ -20,7 +20,7 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { ManagerStyles, Colors } from '../../styles/ManagerStyles'; 
 import { AdminStyles } from '../../styles/AdminStyles';
 import { AdminStackParamList } from '../../navigation/AdminNavigator';
-
+import LinearGradient from 'react-native-linear-gradient';
 // 📌 Impor API Service dan Tipe Data
 import { adminService, UserManagement } from '../../services/apiService';
 
@@ -237,15 +237,22 @@ const AddNewManagerScreen = () => {
 
           {/* Add New Manager Button */}
           <TouchableOpacity 
-            style={localStyles.addManagerButton}
+            
             onPress={handleAddManager} // Arahkan ke form
           >
+            <LinearGradient
+              colors={['#DABC4E', '#EFE3B0']}
+              start={{ x: 0, y: 0.5 }}
+              end={{ x: 1, y: 1 }}
+              style={localStyles.addManagerButton}
+             >
             <Image
               source={require('../../assets/icons/gridicons_add.png')}
               style={localStyles.addManagerIcon}
               resizeMode="contain"
             />
             <Text style={localStyles.addManagerText}>Tambah Manager Baru</Text>
+            </LinearGradient>
           </TouchableOpacity>
 
           {/* Spacer */}

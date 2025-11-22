@@ -52,7 +52,7 @@ const DUMMY_USER_DATA = {
   nomorPeserta: '140072569877',
   program: 'Ilmu Komputer',
   tanggalLahir: '31/12/2006',
-  status: 'Diterima',
+  status: 'Tidak Diterima',
   emailOptions: [
     'sarahjohnson@mail.ugn.ac.id',
     'sarahjohnson2006@mail.ugn.ac.id',
@@ -368,7 +368,7 @@ const localStyles = StyleSheet.create({
   statusDiterima: {
     fontSize: 14,
     fontWeight: 'bold',
-    color: COLORS.SUCCESS_GREEN,
+    color: COLORS.TEXT_DARK,
   },
 
   // Tombol Kembali ke Home

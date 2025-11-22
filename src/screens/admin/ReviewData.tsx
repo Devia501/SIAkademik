@@ -19,7 +19,7 @@ import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { AdminStackParamList } from '../../navigation/AdminNavigator';
 import api from '../../services/api';
 import { UserManagement } from '../../services/apiService';
-
+import LinearGradient from 'react-native-linear-gradient';
 // ============================================
 // 📌 TYPE DEFINITIONS
 // ============================================
@@ -49,13 +49,6 @@ interface CreateUserRequest {
   role: 'admin' | 'manager' | 'pendaftar';
   username?: string;
   phone?: string;
-}
-
-/**
- * API Response untuk create user
- */
-interface CreateUserResponse {
-  data: UserManagement;
 }
 
 // Navigation Types
@@ -150,9 +143,11 @@ const ReviewData: React.FC<ReviewDataProps> = ({ route }) => {
         password_confirmation: '***hidden***',
       });
 
-      const response = await api.post<CreateUserResponse>('/admin/users', dataToSend);
+      const response = await api.post('/admin/users', dataToSend);
       
-      const newManager = (response.data as any).data || response.data;
+      // 📌 PERBAIKAN: Ambil data dari response yang konsisten
+      const responseData = response.data as any;
+      const newManager: UserManagement = responseData.data || responseData;
 
       console.log('✅ Manager berhasil disimpan:', {
         id: newManager.id_user,
@@ -160,18 +155,12 @@ const ReviewData: React.FC<ReviewDataProps> = ({ route }) => {
         email: newManager.email,
       });
 
-      Alert.alert(
-        'Sukses',
-        `Manager "${newManager.name}" berhasil dibuat.\n\nEmail aktivasi telah dikirim ke ${newManager.email}`,
-        [
-          {
-            text: 'OK',
-            onPress: () => {
-              navigation.popToTop();
-            },
-          },
-        ]
-      );
+      // 📌 PERBAIKAN: Navigasi ke KonfirmasiData dengan data yang sudah disimpan
+      navigation.navigate('KonfirmasiData', {
+        ...managerData,
+        savedData: newManager, // Kirim data hasil API untuk ditampilkan
+      } as any);
+
     } catch (error: any) {
       console.error('❌ Error saving manager:', error.response?.data || error.message);
 
@@ -353,10 +342,16 @@ const ReviewData: React.FC<ReviewDataProps> = ({ route }) => {
 
           {/* Action Buttons */}
           <TouchableOpacity
-            style={[styles.saveButton, isSaving && styles.buttonDisabled]}
+            
             onPress={handleSaveManager}
             disabled={isSaving}
           >
+            <LinearGradient
+              colors={['#DABC4E', '#EFE3B0']}
+              start={{ x: 0, y: 0.5 }}
+              end={{ x: 1, y: 1 }}
+              style={[styles.saveButton, isSaving && styles.buttonDisabled]}
+              >
             {isSaving ? (
               <ActivityIndicator color="#015023" size="small" />
             ) : (
@@ -364,6 +359,7 @@ const ReviewData: React.FC<ReviewDataProps> = ({ route }) => {
                 Simpan {managerData.role === 'admin' ? 'Admin' : 'Manager'} Baru
               </Text>
             )}
+            </LinearGradient>
           </TouchableOpacity>
 
           <TouchableOpacity
@@ -591,7 +587,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     marginTop: 24,
     marginBottom: 12,
-    borderWidth: 1,
+    borderWidth: 2,
     borderColor: '#000',
     minHeight: 50,
   },
@@ -607,7 +603,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: 12,
-    borderWidth: 1,
+    borderWidth: 2,
     borderColor: '#000',
   },
   editButtonText: {
@@ -621,7 +617,7 @@ const styles = StyleSheet.create({
     paddingVertical: 14,
     alignItems: 'center',
     justifyContent: 'center',
-    borderWidth: 1,
+    borderWidth: 2,
     borderColor: '#000',
   },
   cancelButtonText: {

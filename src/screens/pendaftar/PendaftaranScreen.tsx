@@ -29,12 +29,7 @@ type PendaftaranScreenNavigationProp = NativeStackNavigationProp<PendaftarStackP
 const PRODI_OPTIONS = [
   'Teknik Informatika',
   'Sistem Informasi',
-  'Manajemen',
-  'Akuntansi',
-  'Hukum',
-  'Psikologi',
-  'Desain Komunikasi Visual',
-  'Arsitektur',
+  'Teknik Elektro',
 ];
 
 const JENIS_KELAMIN_OPTIONS = [

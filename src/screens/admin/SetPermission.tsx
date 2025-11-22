@@ -16,7 +16,7 @@ import { useNavigation } from '@react-navigation/native';
 import type { RouteProp } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { AdminStackParamList } from '../../navigation/AdminNavigator';
-
+import LinearGradient from 'react-native-linear-gradient';
 // ============================================
 // 📌 TYPE DEFINITIONS
 // ============================================
@@ -233,8 +233,15 @@ const SetPermission: React.FC<SetPermissionProps> = ({ route }) => {
           </View>
 
           {/* Action Buttons */}
-          <TouchableOpacity style={localStyles.reviewButton} onPress={handleReviewData}>
+          <TouchableOpacity  onPress={handleReviewData}>
+            <LinearGradient
+              colors={['#DABC4E', '#EFE3B0']}
+              start={{ x: 0, y: 0.5 }}
+              end={{ x: 1, y: 1 }}
+              style={localStyles.reviewButton}
+              >
             <Text style={localStyles.reviewButtonText}>Review Data</Text>
+            </LinearGradient>
           </TouchableOpacity>
 
           <TouchableOpacity style={localStyles.cancelButton} onPress={handleBack}>
@@ -394,7 +401,7 @@ const localStyles = StyleSheet.create({
     justifyContent: 'center',
     marginTop: 24,
     marginBottom: 12,
-    borderWidth: 1,
+    borderWidth: 2,
     borderColor: '#000000',
   },
   reviewButtonText: {
@@ -408,7 +415,7 @@ const localStyles = StyleSheet.create({
     paddingVertical: 14,
     alignItems: 'center',
     justifyContent: 'center',
-    borderWidth: 1,
+    borderWidth: 2,
     borderColor: '#000000',
   },
   cancelButtonText: {
