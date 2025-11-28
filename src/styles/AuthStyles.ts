@@ -73,10 +73,10 @@ const AuthStyles = StyleSheet.create({
   },
   backgroundLogo: {
     position: 'absolute',
-    bottom: -350,
+    top: 170,
     alignSelf: 'center',
-    width: 950,
-    height: 950,
+    width: 500,
+    height: 500,
     opacity: 0.20,
     zIndex: -1,
   },

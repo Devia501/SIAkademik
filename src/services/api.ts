@@ -7,7 +7,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 // PILIH SALAH SATU sesuai device:
 
 // Device Fisik (ganti dengan IP komputer Anda)
-const API_URL = 'http://10.139.243.208:8000/api'; // <--- PASTIKAN IP INI BENAR!
+const API_URL = 'http://172.27.86.208:8000/api'; // <--- PASTIKAN IP INI BENAR!
 
 console.log('🌐 API URL:', API_URL);
 

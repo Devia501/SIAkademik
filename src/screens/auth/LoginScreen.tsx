@@ -166,7 +166,7 @@ const LoginScreen = () => {
 
       {/* Background Logo */}
       <Image
-        source={require('../../assets/images/logo-ugn.png')}
+        source={require('../../assets/images/logo-ugn2.png')}
         style={[AuthStyles.backgroundLogo, styles.backgroundLogoFixed]}
         resizeMode="contain"
       />

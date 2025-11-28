@@ -1,9 +1,25 @@
+// src/services/apiService.ts
+
 import api from './api';
 import { AxiosResponse } from 'axios';
 
 // ============================================
-// 📋 TYPES & INTERFACES (Disesuaikan dengan Laravel)
+// 📋 TYPES & INTERFACES
 // ============================================
+
+// Laravel API Response Wrapper
+interface ApiResponse<T> {
+  success: boolean;
+  data: T;
+  message?: string;
+}
+
+interface ApiErrorResponse {
+  success: false;
+  message: string;
+  error?: string;
+  errors?: Record<string, string[]>; // Laravel validation errors
+}
 
 // Common response types
 interface PaginatedResponse<T> {
@@ -14,22 +30,34 @@ interface PaginatedResponse<T> {
   total: number;
 }
 
-// Registration Types
+// 🔑 Interface untuk data Wilayah (Provinsi/Kota)
+export interface Region {
+  id_province?: number;
+  id_city?: number;
+  id?: number; // Terkadang API Laravel menggunakan 'id' generik
+  name: string;
+  type?: string; // (Untuk Kota/Kabupaten)
+}
+
+
 export interface DocumentType {
   id_document_type: number;
-  name: string;
+  document_name: string;        
   description?: string;
-  is_required: boolean;
+  is_mandatory?: boolean;     
+  is_active: boolean;
 }
 
 export interface Profile {
   id_profile?: number;
   id_user?: number;
   id_program?: number;
+  id_program_2?: number; 
+  id_program_3?: number; 
   registration_number?: string;
   registration_status?: 'draft' | 'submitted' | 'approved' | 'rejected';
   full_name: string;
-  gender?: 'L' | 'P';
+  gender?: string; 
   religion?: string;
   birth_place?: string;
   birth_date?: string; 
@@ -39,14 +67,17 @@ export interface Profile {
   citizenship?: string;
   birth_order?: number;
   number_of_siblings?: number;
+  // FIELD ALAMAT
   full_address?: string;
   dusun?: string;
   kelurahan?: string;
   kecamatan?: string;
-  city_regency?: string;
-  province?: string;
+  city_regency?: string; 
+  province?: string;     
   postal_code?: string;
   phone_number?: string;
+  email?: string;
+  // FIELD AKADEMIK
   previous_school?: string;
   graduation_status?: string;
   last_ijazah?: string;
@@ -61,13 +92,13 @@ export interface Document {
   rejection_reason?: string;
   upload_date?: string;
   document_type?: DocumentType;
-  file_url?: string; // Computed attribute dari Laravel
+  file_url?: string;
 }
 
 export interface Guardian {
   id_guardian?: number;
   id_profile?: number;
-  relationship_type: string; // 'father', 'mother', 'guardian'
+  relationship_type: string;
   full_name: string;
   address?: string;
   phone_number?: string;
@@ -76,53 +107,25 @@ export interface Guardian {
   income_range?: string;
 }
 
+// 🔑 BARU: Achievement Interface yang disesuaikan dengan DB
 export interface Achievement {
   id_achievement?: number;
   id_profile?: number;
   achievement_name: string;
-  level?: string;
-  year?: number;
-  certificate_file?: string;
+  level?: string; // Digunakan sebagai fallback, tapi API/DB menggunakan 'achievement_level'
+  year?: number; // Mapped dari 'year' DB field
+  achievement_type?: string; // Mapped dari 'achievement_type' DB field (Jenis Prestasi)
+  achievement_level?: string; // Mapped dari 'achievement_level' DB field (Tingkat Prestasi)
+  organizer?: string; // Mapped dari 'organizer' DB field (Penyelenggara)
+  ranking?: string; // Mapped dari 'ranking' DB field (Peringkat)
+  certificate_path?: string; // Mapped dari 'certificate_path'
 }
 
 export interface RegistrationStatus {
+  registration_number: string;
   status: 'draft' | 'submitted' | 'approved' | 'rejected';
-  submitted_at?: string;
-  reviewed_at?: string;
-  notes?: string;
-  completeness_percentage: number;
-}
-
-// Admin Types
-export interface Applicant {
-  id_profile: number;
   full_name: string;
-  registration_number?: string;
-  registration_status: string;
-  created_at: string;
-  user?: {
-    id_user: number;
-    email: string;
-  };
-  program?: {
-    id_program: number;
-    name: string;
-  };
-}
-
-export interface Statistics {
-  total_applicants: number;
-  pending_review: number;
-  approved: number;
-  rejected: number;
-}
-
-export interface UserManagement {
-  id_user: number;
-  name: string;
   email: string;
-  role: 'admin' | 'manager' | 'pendaftar';
-  created_at: string;
 }
 
 export interface Program {
@@ -133,7 +136,7 @@ export interface Program {
 }
 
 // ============================================
-// 🎓 REGISTRATION SERVICE (untuk Pendaftar)
+// 🎓 REGISTRATION SERVICE
 // ============================================
 export const registrationService = {
   /**
@@ -141,8 +144,8 @@ export const registrationService = {
    * GET /api/registration/document-types
    */
   getDocumentTypes: async (): Promise<DocumentType[]> => {
-    const response = await api.get<DocumentType[]>('/registration/document-types');
-    return response.data;
+    const response = await api.get<ApiResponse<DocumentType[]>>('/registration/document-types');
+    return response.data.data; 
   },
 
   /**
@@ -150,8 +153,8 @@ export const registrationService = {
    * POST /api/registration/profile
    */
   storeProfile: async (data: Partial<Profile>): Promise<Profile> => {
-    const response = await api.post<Profile>('/registration/profile', data);
-    return response.data;
+    const response = await api.post<ApiResponse<Profile>>('/registration/profile', data);
+    return response.data.data; 
   },
 
   /**
@@ -159,20 +162,19 @@ export const registrationService = {
    * GET /api/registration/profile
    */
   getProfile: async (): Promise<Profile> => {
-    const response = await api.get<Profile>('/registration/profile');
-    return response.data;
+    const response = await api.get<ApiResponse<Profile>>('/registration/profile');
+    return response.data.data; 
   },
 
   /**
    * Upload document
    * POST /api/registration/documents
-   * FormData harus berisi: file, id_document_type
    */
   uploadDocument: async (formData: FormData): Promise<Document> => {
-    const response = await api.post<Document>('/registration/documents', formData, {
+    const response = await api.post<ApiResponse<Document>>('/registration/documents', formData, {
       headers: { 'Content-Type': 'multipart/form-data' },
     });
-    return response.data;
+    return response.data.data; 
   },
 
   /**
@@ -180,8 +182,8 @@ export const registrationService = {
    * GET /api/registration/documents
    */
   getDocuments: async (): Promise<Document[]> => {
-    const response = await api.get<Document[]>('/registration/documents');
-    return response.data;
+    const response = await api.get<ApiResponse<Document[]>>('/registration/documents');
+    return response.data.data; 
   },
 
   /**
@@ -192,13 +194,41 @@ export const registrationService = {
     await api.delete(`/registration/documents/${id_document}`);
   },
 
+  // 🔑 FUNGSI CRUD PRESTASI BARU
+  /**
+   * Add achievement
+   * POST /api/registration/achievements
+   */
+  addAchievement: async (data: Partial<Achievement>): Promise<Achievement> => {
+    const response = await api.post<ApiResponse<Achievement>>('/registration/achievements', data);
+    return response.data.data; 
+  },
+
+  /**
+   * Get achievements
+   * GET /api/registration/achievements
+   */
+  getAchievements: async (): Promise<Achievement[]> => {
+    const response = await api.get<ApiResponse<Achievement[]>>('/registration/achievements');
+    return response.data.data; 
+  },
+
+  /**
+   * Delete achievement
+   * DELETE /api/registration/achievements/{id_achievement}
+   */
+  deleteAchievement: async (id_achievement: number): Promise<void> => {
+    await api.delete(`/registration/achievements/${id_achievement}`);
+  },
+  // AKHIR FUNGSI PRESTASI
+
   /**
    * Add guardian
    * POST /api/registration/guardians
    */
   addGuardian: async (data: Partial<Guardian>): Promise<Guardian> => {
-    const response = await api.post<Guardian>('/registration/guardians', data);
-    return response.data;
+    const response = await api.post<ApiResponse<Guardian>>('/registration/guardians', data);
+    return response.data.data; 
   },
 
   /**
@@ -206,8 +236,8 @@ export const registrationService = {
    * GET /api/registration/guardians
    */
   getGuardians: async (): Promise<Guardian[]> => {
-    const response = await api.get<Guardian[]>('/registration/guardians');
-    return response.data;
+    const response = await api.get<ApiResponse<Guardian[]>>('/registration/guardians');
+    return response.data.data; 
   },
 
   /**
@@ -215,8 +245,8 @@ export const registrationService = {
    * PUT /api/registration/guardians/{id_guardian}
    */
   updateGuardian: async (id_guardian: number, data: Partial<Guardian>): Promise<Guardian> => {
-    const response = await api.put<Guardian>(`/registration/guardians/${id_guardian}`, data);
-    return response.data;
+    const response = await api.put<ApiResponse<Guardian>>(`/registration/guardians/${id_guardian}`, data);
+    return response.data.data; 
   },
 
   /**
@@ -228,30 +258,12 @@ export const registrationService = {
   },
 
   /**
-   * Add achievement
-   * POST /api/registration/achievements
-   */
-  addAchievement: async (data: Partial<Achievement>): Promise<Achievement> => {
-    const response = await api.post<Achievement>('/registration/achievements', data);
-    return response.data;
-  },
-
-  /**
-   * Get achievements
-   * GET /api/registration/achievements
-   */
-  getAchievements: async (): Promise<Achievement[]> => {
-    const response = await api.get<Achievement[]>('/registration/achievements');
-    return response.data;
-  },
-
-  /**
    * Submit registration
    * POST /api/registration/submit
    */
-  submitRegistration: async (): Promise<{ message: string }> => {
-    const response = await api.post<{ message: string }>('/registration/submit');
-    return response.data;
+  submitRegistration: async (): Promise<Profile> => {
+    const response = await api.post<ApiResponse<Profile>>('/registration/submit');
+    return response.data.data; 
   },
 
   /**
@@ -259,97 +271,13 @@ export const registrationService = {
    * GET /api/registration/status
    */
   getRegistrationStatus: async (): Promise<RegistrationStatus> => {
-    const response = await api.get<RegistrationStatus>('/registration/status');
-    return response.data;
+    const response = await api.get<ApiResponse<RegistrationStatus>>('/registration/status');
+    return response.data.data; 
   },
 };
 
 // ============================================
-// 👔 ADMIN SERVICE (untuk Manager & Admin)
-// ============================================
-export const adminService = {
-  /**
-   * Get all applicants
-   * GET /api/admin/applicants
-   */
-  getApplicants: async (params?: {
-    page?: number;
-    per_page?: number;
-    status?: string;
-    search?: string;
-  }): Promise<PaginatedResponse<Applicant>> => {
-    const response = await api.get<PaginatedResponse<Applicant>>('/admin/applicants', { params });
-    return response.data;
-  },
-
-  /**
-   * Get applicant detail
-   * GET /api/admin/applicants/{id_profile}
-   */
-  getApplicantDetail: async (id_profile: number): Promise<any> => {
-    const response = await api.get(`/admin/applicants/${id_profile}`);
-    return response.data;
-  },
-
-  /**
-   * Get statistics
-   * GET /api/admin/statistics
-   */
-  getStatistics: async (): Promise<Statistics> => {
-    const response = await api.get<Statistics>('/admin/statistics');
-    return response.data;
-  },
-
-  /**
-   * Create user (Admin only)
-   * POST /api/admin/users
-   */
-  createUser: async (data: {
-    name: string;
-    email: string;
-    password: string;
-    password_confirmation: string;
-    role: 'admin' | 'manager' | 'pendaftar';
-    username?: string;
-    phone?: string;
-  }): Promise<UserManagement> => {
-    const response = await api.post<UserManagement>('/admin/users', data);
-    return response.data;
-  },
-
-  /**
-   * List users (Admin only)
-   * GET /api/admin/users
-   */
-  listUsers: async (params?: {
-    page?: number;
-    per_page?: number;
-    role?: string;
-  }): Promise<PaginatedResponse<UserManagement>> => {
-    const response = await api.get<PaginatedResponse<UserManagement>>('/admin/users', { params });
-    return response.data;
-  },
-
-  /**
-   * Update user (Admin only)
-   * PUT /api/admin/users/{id_user}
-   */
-  updateUser: async (id_user: number, data: Partial<UserManagement>): Promise<UserManagement> => {
-    const response = await api.put<UserManagement>(`/admin/users/${id_user}`, data);
-    return response.data;
-  },
-
-  /**
-   * Delete user (Admin only)
-   * DELETE /api/admin/users/{id_user}
-   */
-  deleteUser: async (id_user: number): Promise<void> => {
-    await api.delete(`/admin/users/${id_user}`);
-  },
-};
-
-// ============================================
-// 🌐 PUBLIC SERVICE (tanpa auth)
+// 🌐 PUBLIC SERVICE
 // ============================================
 export const publicService = {
   /**
@@ -357,16 +285,53 @@ export const publicService = {
    * GET /api/programs
    */
   getActivePrograms: async (): Promise<Program[]> => {
-    const response = await api.get<Program[]>('/programs');
-    return response.data;
+    const response = await api.get<ApiResponse<Program[]>>('/programs');
+    return response.data.data; 
+  },
+
+  // Get list of all provinces
+  // GET /api/public/provinces
+  getProvinces: async (): Promise<Region[]> => {
+    const response = await api.get<ApiResponse<Region[]>>('/public/provinces');
+    return response.data.data; 
+  },
+
+  // Get list of cities/regencies by province ID
+  // GET /api/public/cities/{id_province}
+  getCities: async (provinceId: number): Promise<Region[]> => {
+      if (!provinceId) {
+          throw new Error("Province ID is missing.");
+      }
+      const response = await api.get<ApiResponse<Region[]>>(`/public/cities/${provinceId}`);
+      return response.data.data;
   },
 };
 
 // ============================================
-// 📦 EXPORT DEFAULT
+// 📦 EXPORT
 // ============================================
 export default {
   registration: registrationService,
-  admin: adminService,
   public: publicService,
 };
+
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response?.status === 422) {
+      // Transform Laravel validation errors jadi string
+      const errors = error.response.data.errors;
+      if (errors) {
+        const messages = Object.values(errors).flat() as string[];
+        error.userMessage = messages.join('\n');
+      } else {
+        error.userMessage = error.response.data.message || 'Validasi gagal';
+      }
+    } else if (error.response?.status === 401) {
+      error.userMessage = 'Sesi login habis. Silakan login ulang.';
+    } else if (error.response?.status === 500) {
+      error.userMessage = 'Terjadi kesalahan server. Coba lagi nanti.';
+    }
+    return Promise.reject(error);
+  }
+);
